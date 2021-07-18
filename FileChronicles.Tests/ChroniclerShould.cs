@@ -22,6 +22,7 @@ namespace FileChronicles.Tests
             chronicler.Create(path, GetTestContentsBytes(), token);
             var text = File.ReadAllText(path);
             Assert.Equal(_testContents, text);
+            File.Delete(path);
         }
     }
 }
