@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: [ main ]
 
+env:
+  PACKAGE_OUTPUT_DIRECTORY: ${{ github.workspace }}/output
+  NUGET_SOURCE_URL: https://api.nuget.org/v3/index.json
+
 jobs:
   build:
 
@@ -23,3 +27,9 @@ jobs:
       run: dotnet build --no-restore
     - name: Test
       run: dotnet test --no-build --verbosity normal
+    - name: Pack Project
+      if: startsWith( github.ref, 'refs/tags/releases/') 
+      run: dotnet pack FileChronicles/FileChronicles.csproj --configuration Release --output ${{ env.PACKAGE_OUTPUT_DIRECTORY }}
+    - name: Push Package
+      if: startsWith( github.ref, 'refs/tags/releases/') 
+      run: dotnet nuget push ${{ env.PACKAGE_OUTPUT_DIRECTORY }}/*.nupkg --api-key ${{ secrets.NUGET_AUTH_TOKEN }} -s ${{ env.NUGET_SOURCE_URL }}

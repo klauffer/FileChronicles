@@ -1,7 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>FileChronicles</PackageId>
+    <Version>0.0.1-alpha</Version>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <Authors>Kyle Lauffer</Authors>
+    <Description>Transactional File Operations</Description>
+    <RepositoryUrl>https://github.com/klauffer/FileChronicles</RepositoryUrl>
+    <PackageTags>File; Transactions; Chronicles;</PackageTags>
+    <Copyright>Copyright Kyle Lauffer</Copyright>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
   </PropertyGroup>
 
 </Project>
