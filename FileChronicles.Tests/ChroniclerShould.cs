@@ -1,6 +1,7 @@
 ﻿using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using FileChronicles.Tests.Infrastructure;
 using Xunit;
 
 namespace FileChronicles.Tests
@@ -12,8 +13,9 @@ namespace FileChronicles.Tests
         {
             var fileName1 = "TestFile1.txt";
             var fileName2 = "TestFile2.txt";
-            File.Delete(fileName1);
-            File.Delete(fileName2);
+            using SafeFile safeFile1 = SafeFile.Clear(fileName1),
+                           safeFile2 = SafeFile.Clear(fileName2);
+
             var chronicler = Chronicler.Begin();
             CancellationTokenSource tokenSource = new CancellationTokenSource();
             CancellationToken token = tokenSource.Token;
@@ -24,9 +26,6 @@ namespace FileChronicles.Tests
             Assert.True(eventResult.Match(() => true, errorCode => false));
             Assert.True(File.Exists(fileName1));
             Assert.True(File.Exists(fileName2));
-
-            File.Delete(fileName1);
-            File.Delete(fileName2);
         }
     }
 }

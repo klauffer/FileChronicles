@@ -23,6 +23,17 @@ namespace FileChronicles.Tests.Infrastructure
             return safeFile;
         }
 
+        /// <summary>
+        /// Creates the given file
+        /// </summary>
+        /// <param name="fileName">fully qualified file name</param>
+        public static SafeFile Clear(string fileName)
+        {
+            var safeFile = new SafeFile(fileName);
+            safeFile.Dispose();
+            return safeFile;
+        }
+
         private void CreateFile()
         {
             using var stream = File.Create(_fileName);

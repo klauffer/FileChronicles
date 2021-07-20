@@ -18,14 +18,13 @@ namespace FileChronicles.Tests.ChronicleEventTests
         public async Task CreateAFile()
         {
             var path = "TestFile.txt";
-            File.Delete(path);
+            using SafeFile safeFile1 = SafeFile.Clear(path);
             var chronicler = Chronicler.Begin();
             CancellationTokenSource tokenSource = new CancellationTokenSource();
             CancellationToken token = tokenSource.Token;
             chronicler.Create(path, GetTestContentsBytes(), token);
             var eventResult = await chronicler.Commit();
             var text = eventResult.Match(() => File.ReadAllText(path), errorCode => errorCode.ToString());
-            File.Delete(path);
 
             Assert.Equal(_testContents, text);
         }
@@ -34,7 +33,7 @@ namespace FileChronicles.Tests.ChronicleEventTests
         public void NotCreateFileUntilCommit()
         {
             var path = "TestFile.txt";
-            File.Delete(path);
+            using SafeFile safeFile1 = SafeFile.Clear(path);
             var chronicler = Chronicler.Begin();
             CancellationTokenSource tokenSource = new CancellationTokenSource();
             CancellationToken token = tokenSource.Token;
