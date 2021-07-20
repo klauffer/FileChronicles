@@ -17,13 +17,14 @@ namespace FileChronicles
         /// <param name="bytes">the contents of the file</param>
         /// <param name="cancellationToken">to cancel writing the file</param>
         /// <returns></returns>
-        public Task Create(string path, byte[] bytes, CancellationToken cancellationToken = default)
+        public async Task<EventResult<string, ErrorCode>> Create(string path, byte[] bytes, CancellationToken cancellationToken = default)
         {
             if(!File.Exists(path))
             {
-                return File.WriteAllBytesAsync(path, bytes, cancellationToken);
+                await File.WriteAllBytesAsync(path, bytes, cancellationToken);
+                return new EventResult<string, ErrorCode>.Success(path);
             }
-            return Task.CompletedTask; 
+            return new EventResult<string, ErrorCode>.Error(ErrorCode.FileAlreadyExists);
         }
     }
 }
