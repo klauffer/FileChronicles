@@ -1,5 +1,4 @@
-using System.IO;
-using System.Text;
+﻿using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
@@ -8,22 +7,26 @@ namespace FileChronicles.Tests
 {
     public class ChroniclerShould
     {
-
-        private readonly string _testContents = "This is a test";
-
-        private byte[] GetTestContentsBytes() => Encoding.ASCII.GetBytes(_testContents);
-
         [Fact]
-        public async Task CreateAFile()
+        public async Task CommitMoreThenOneAction()
         {
-            var path = "TestFile.txt";
-            var chronicler = new Chronicler();
+            var fileName1 = "TestFile1.txt";
+            var fileName2 = "TestFile2.txt";
+            File.Delete(fileName1);
+            File.Delete(fileName2);
+            var chronicler = Chronicler.Begin();
             CancellationTokenSource tokenSource = new CancellationTokenSource();
             CancellationToken token = tokenSource.Token;
-            var eventResult = await chronicler.Create(path, GetTestContentsBytes(), token);
-            var text = eventResult.Match(path => File.ReadAllText(path), errorCode => errorCode.ToString());
-            Assert.Equal(_testContents, text);
-            File.Delete(path);
+            chronicler.Create(fileName1, new byte[0], token);
+            chronicler.Create(fileName2, new byte[0], token);
+            var eventResult = await chronicler.Commit();
+
+            Assert.True(eventResult.Match(() => true, errorCode => false));
+            Assert.True(File.Exists(fileName1));
+            Assert.True(File.Exists(fileName2));
+
+            File.Delete(fileName1);
+            File.Delete(fileName2);
         }
     }
 }

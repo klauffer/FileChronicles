@@ -5,7 +5,7 @@ namespace FileChronicles
     /// <summary>
     /// Results of registering an event with the chronicle via chonicler
     /// </summary>
-    public abstract class EventResult<SuccessType, ErrorType>
+    public abstract class EventResult<ErrorType>
     {
         /// <summary>
         /// keep external classes from inheriting this
@@ -13,38 +13,27 @@ namespace FileChronicles
         private EventResult() { }
 
         /// <summary>
-        /// Exhaustively match on the <see cref="EventResult{SuccessType, ErrorType}"/>.
+        /// Exhaustively match on the <see cref="EventResult{ErrorType}"/>.
         /// </summary>
-        /// <typeparam name="T">The type to unify all cases of the <see cref="EventResult{SuccessType, ErrorType}"/> to.</typeparam>
-        /// <param name="success">What to do if the <see cref="EventResult{SuccessType, ErrorType}"/> was a success.</param>
-        /// <param name="error">What to do if the <see cref="EventResult{SuccessType, ErrorType}"/> was a error.</param>
+        /// <typeparam name="T">The type to unify all cases of the <see cref="EventResult{ErrorType}"/> to.</typeparam>
+        /// <param name="success">What to do if the <see cref="EventResult{ErrorType}"/> was a success.</param>
+        /// <param name="error">What to do if the <see cref="EventResult{ErrorType}"/> was a error.</param>
         /// <returns>The result of handling each case.</returns>
-        public abstract T Match<T>(Func<SuccessType, T> success, Func<ErrorType, T> error);
+        public abstract T Match<T>(Func<T> success, Func<ErrorType, T> error);
 
         /// <summary>
         /// a Successful Event
         /// </summary>
-        public sealed class Success : EventResult<SuccessType, ErrorType>
+        public sealed class Success : EventResult<ErrorType>
         {
-            private readonly SuccessType _successInfo;
-
-            /// <summary>
-            /// Require Additional information for a Success State
-            /// </summary>
-            /// <param name="successInfo"></param>
-            public Success(SuccessType successInfo)
-            {
-                _successInfo = successInfo;
-            }
-
             /// <inheritdoc/>
-            public override T Match<T>(Func<SuccessType, T> success, Func<ErrorType, T> error) => success(_successInfo);
+            public override T Match<T>(Func<T> success, Func<ErrorType, T> error) => success();
         }
 
         /// <summary>
         /// a errored Event
         /// </summary>
-        public sealed class Error : EventResult<SuccessType, ErrorType>
+        public sealed class Error : EventResult<ErrorType>
         {
             /// <summary>
             /// Errored additional information
@@ -60,7 +49,7 @@ namespace FileChronicles
                 _errorInfo = errorInfo;
             }
             /// <inheritdoc/>
-            public override T Match<T>(Func<SuccessType, T> success, Func<ErrorType, T> error) => error(_errorInfo);
+            public override T Match<T>(Func<T> success, Func<ErrorType, T> error) => error(_errorInfo);
         }
     }
 }
