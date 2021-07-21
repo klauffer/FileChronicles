@@ -6,25 +6,32 @@ namespace FileChronicles
 {
     internal sealed class Chronicle
     {
-        private readonly List<IChronicleEvent> _chronicleEvents;
+        private readonly List<IChronicleEvent> _livingChronicleEvents;
+        private readonly List<IChronicleEvent> _deadChronicleEvents;
 
         public Chronicle()
         {
-            _chronicleEvents = new List<IChronicleEvent>();
+            _livingChronicleEvents = new List<IChronicleEvent>();
+            _deadChronicleEvents = new List<IChronicleEvent>();
         }
 
-        public void AddEvent(IChronicleEvent chronicleEvent) => _chronicleEvents.Add(chronicleEvent);
+        public void AddEvent(IChronicleEvent chronicleEvent) => _livingChronicleEvents.Add(chronicleEvent);
 
         public async Task<EventResult<ErrorCode>> Commit()
         {
-            foreach (var chroncileEvent in _chronicleEvents)
+            foreach (var chroncileEvent in _livingChronicleEvents)
             {
                 try
                 {
                     var eventResult = await chroncileEvent.Action();
                     if (eventResult is EventResult<ErrorCode>.Error)
                     {
+                        await Rollback();
                         return eventResult;
+                    }
+                    else
+                    {
+                        _deadChronicleEvents.Add(chroncileEvent);
                     }
                 }
                 catch (TaskCanceledException)
@@ -32,6 +39,15 @@ namespace FileChronicles
                     return new EventResult<ErrorCode>.Error(ErrorCode.EventCancelled);
                 }
                 
+            }
+            return new EventResult<ErrorCode>.Success();
+        }
+
+        private async Task<EventResult<ErrorCode>> Rollback()
+        {
+            foreach (var chronicleEvent in _deadChronicleEvents)
+            {
+                await chronicleEvent.RollBack();
             }
             return new EventResult<ErrorCode>.Success();
         }

@@ -26,5 +26,12 @@ namespace FileChronicles.Events
             }
             return new EventResult<ErrorCode>.Error(ErrorCode.FileAlreadyExists);
         }
+
+        public Task<EventResult<ErrorCode>> RollBack()
+        {
+            File.Delete(_fileName);
+            EventResult<ErrorCode> eventResult = new EventResult<ErrorCode>.Success();
+            return Task.FromResult(eventResult);
+        }
     }
 }

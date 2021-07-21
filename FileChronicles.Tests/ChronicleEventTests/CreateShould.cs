@@ -59,7 +59,7 @@ namespace FileChronicles.Tests.ChronicleEventTests
         }
 
         [Fact]
-        public async Task HonorCancellationToekn()
+        public async Task HonorCancellationToken()
         {
             var path = "test.txt";
             using var safeFile = SafeFile.Clear(path);
