@@ -57,5 +57,24 @@ namespace FileChronicles.Tests.ChronicleEventTests
             var errorCode = eventResult.Match(() => "Doh!", errorCode => errorCode.ToString());
             Assert.Equal(ErrorCode.FileAlreadyExists.ToString(), errorCode);
         }
+
+        [Fact]
+        public async Task HonorCancellationToekn()
+        {
+            var path = "test.txt";
+            using var safeFile = SafeFile.Clear(path);
+
+            var chronicler = Chronicler.Begin();
+            CancellationTokenSource tokenSource = new CancellationTokenSource();
+            CancellationToken token = tokenSource.Token;
+
+            chronicler.Create(path, GetTestContentsBytes(), token);
+            tokenSource.Cancel();
+
+            var eventResult = await chronicler.Commit();
+
+            var errorCode = eventResult.Match(() => "Doh!", errorCode => errorCode.ToString());
+            Assert.Equal(ErrorCode.EventCancelled.ToString(), errorCode);
+        }
     }
 }

@@ -8,6 +8,10 @@
         /// <summary>
         /// When the a file already exists in the destination location
         /// </summary>
-        FileAlreadyExists
+        FileAlreadyExists,
+        /// <summary>
+        /// when a single event is cancelled in a chroncile
+        /// </summary>
+        EventCancelled,
     }
 }

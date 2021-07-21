@@ -19,11 +19,19 @@ namespace FileChronicles
         {
             foreach (var chroncileEvent in _chronicleEvents)
             {
-                var eventResult = await chroncileEvent.Action();
-                if (eventResult is EventResult<ErrorCode>.Error)
+                try
                 {
-                    return eventResult;
+                    var eventResult = await chroncileEvent.Action();
+                    if (eventResult is EventResult<ErrorCode>.Error)
+                    {
+                        return eventResult;
+                    }
                 }
+                catch (TaskCanceledException)
+                {
+                    return new EventResult<ErrorCode>.Error(ErrorCode.EventCancelled);
+                }
+                
             }
             return new EventResult<ErrorCode>.Success();
         }
