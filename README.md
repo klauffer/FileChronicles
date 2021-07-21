@@ -1,13 +1,10 @@
-# FileChronicles
-Transactional File Operations
-
 FileChronicles
 =======
 
 [![BuildDeploy](https://github.com/klauffer/FileChronicles/actions/workflows/BuildDeploy.yml/badge.svg)](https://github.com/klauffer/FileChronicles/actions/workflows/BuildDeploy.yml)
 
 
-A Collection of Search Algorithms in .NET
+Transactional File Operations. Begin then Commit or Rollback like database transactions. These are the _Chronicles_ of your files 
 
 
 ### Installing FileChronicles
