@@ -68,7 +68,7 @@ namespace FileChronicles.Tests
             chronicler.Create(fileName2, new byte[0], token);
 
             var eventResult = await chronicler.Commit();
-            //The first file should of been created then the second file failed and rolled back the first action.
+            //The first file should've been created then the second file failed and rolled back the first action.
             //so this file should no longer exist
             Assert.False(File.Exists(fileName1));
         }
