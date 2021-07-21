@@ -71,7 +71,22 @@ namespace FileChronicles.Tests
             //The first file should of been created then the second file failed and rolled back the first action.
             //so this file should no longer exist
             Assert.False(File.Exists(fileName1));
+        }
 
+        [Fact]
+        public async Task RollbackRemovesUncommittedChanges()
+        {
+            var fileName1 = "TestFile1.txt";
+            using SafeFile safeFile1 = SafeFile.Clear(fileName1);
+            CancellationTokenSource tokenSource = new CancellationTokenSource();
+            CancellationToken token = tokenSource.Token;
+
+            var chronicler = Chronicler.Begin();
+            chronicler.Create(fileName1, new byte[0], token);
+            await chronicler.Rollback();
+            await chronicler.Commit();
+
+            Assert.False(File.Exists(fileName1));
         }
     }
 }

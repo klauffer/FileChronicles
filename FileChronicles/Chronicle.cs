@@ -6,8 +6,8 @@ namespace FileChronicles
 {
     internal sealed class Chronicle
     {
-        private readonly List<IChronicleEvent> _livingChronicleEvents;
-        private readonly List<IChronicleEvent> _deadChronicleEvents;
+        private List<IChronicleEvent> _livingChronicleEvents;
+        private List<IChronicleEvent> _deadChronicleEvents;
 
         public Chronicle()
         {
@@ -43,12 +43,14 @@ namespace FileChronicles
             return new EventResult<ErrorCode>.Success();
         }
 
-        private async Task<EventResult<ErrorCode>> Rollback()
+        public async Task<EventResult<ErrorCode>> Rollback()
         {
             foreach (var chronicleEvent in _deadChronicleEvents)
             {
                 await chronicleEvent.RollBack();
             }
+            _livingChronicleEvents = new List<IChronicleEvent>();
+            _deadChronicleEvents = new List<IChronicleEvent>();
             return new EventResult<ErrorCode>.Success();
         }
     }

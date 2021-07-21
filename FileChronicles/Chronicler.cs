@@ -33,8 +33,16 @@ namespace FileChronicles
         /// <returns></returns>
         public async Task<EventResult<ErrorCode>> Commit()
         {
-            // should move action call to here. design for no real changes until commit. create should be just storing the action. perhaps return types need adjusted
             return await _chronicle.Commit();
+        }
+
+        /// <summary>
+        /// forgets uncommitted events and rollsback committed events in the chronicle tracked by this Chronicler
+        /// </summary>
+        /// <returns></returns>
+        public async Task Rollback()
+        {
+            await _chronicle.Rollback();
         }
 
         /// <summary>
