@@ -8,6 +8,7 @@ namespace FileChronicles.Tests
 {
     public class ChroniclerShould
     {
+
         [Fact]
         public async Task CommitMoreThenOneAction()
         {
@@ -16,7 +17,7 @@ namespace FileChronicles.Tests
             using SafeFile safeFile1 = SafeFile.Clear(fileName1),
                            safeFile2 = SafeFile.Clear(fileName2);
 
-            var chronicler = Chronicler.Begin();
+            await using var chronicler = Chronicler.Begin();
             CancellationTokenSource tokenSource = new CancellationTokenSource();
             CancellationToken token = tokenSource.Token;
             chronicler.Create(fileName1, new byte[0], token);
@@ -40,8 +41,8 @@ namespace FileChronicles.Tests
             CancellationTokenSource tokenSource = new CancellationTokenSource();
             CancellationToken token = tokenSource.Token;
 
-            var chronicler = Chronicler.Begin();
-            
+            await using var chronicler = Chronicler.Begin();
+
             chronicler.Create(fileName1, new byte[0], token);
             chronicler.Create(fileName2, new byte[0], token);
             var eventResult = await chronicler.Commit();
@@ -63,7 +64,7 @@ namespace FileChronicles.Tests
             CancellationTokenSource tokenSource = new CancellationTokenSource();
             CancellationToken token = tokenSource.Token;
 
-            var chronicler = Chronicler.Begin();
+            await using var chronicler = Chronicler.Begin();
             chronicler.Create(fileName1, new byte[0], token);
             chronicler.Create(fileName2, new byte[0], token);
 
@@ -81,7 +82,7 @@ namespace FileChronicles.Tests
             CancellationTokenSource tokenSource = new CancellationTokenSource();
             CancellationToken token = tokenSource.Token;
 
-            var chronicler = Chronicler.Begin();
+            await using var chronicler = Chronicler.Begin();
             chronicler.Create(fileName1, new byte[0], token);
             await chronicler.Rollback();
             await chronicler.Commit();

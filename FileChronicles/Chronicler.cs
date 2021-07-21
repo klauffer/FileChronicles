@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ namespace FileChronicles
     /// <summary>
     /// the object that keeps accounts of events through the history of a transaction
     /// </summary>
-    public sealed class Chronicler
+    public class Chronicler : IAsyncDisposable
     {
         private readonly Chronicle _chronicle;
 
@@ -57,6 +58,17 @@ namespace FileChronicles
             var createFileEvent = new CreateFileEvent(path, bytes, cancellationToken);
             _chronicle.AddEvent(createFileEvent);
 
+        }
+
+        /// <summary>
+        /// Properly disposes of asynchronous resources
+        /// </summary>
+        public async ValueTask DisposeAsync()
+        {
+            if (_chronicle != null)
+            {
+                await _chronicle.Rollback();
+            }
         }
     }
 }
