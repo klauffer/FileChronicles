@@ -4,10 +4,10 @@ namespace FileChronicles.Events
 {
     internal interface IChronicleEvent
     {
-        Task<EventResult<ErrorCode>> Validate();
+        Task<EventResult<string, ErrorCode>> Validate();
 
-        Task<EventResult<ErrorCode>> Action();
+        Task<EventResult<string, ErrorCode>> Action();
 
-        Task<EventResult<ErrorCode>> RollBack();
+        Task<EventResult<string, ErrorCode>> RollBack();
     }
 }

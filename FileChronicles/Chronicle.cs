@@ -15,21 +15,21 @@ namespace FileChronicles
             _deadChronicleEvents = new List<IChronicleEvent>();
         }
 
-        public async Task<EventResult<ErrorCode>> AddEvent(IChronicleEvent chronicleEvent)
+        public async Task<EventResult<string, ErrorCode>> AddEvent(IChronicleEvent chronicleEvent)
         {
             var eventResult = await chronicleEvent.Validate();
             eventResult.IfSuccess(() => _livingChronicleEvents.Add(chronicleEvent));
             return eventResult;
         }
 
-        public async Task<EventResult<ErrorCode>> Commit()
+        public async Task<EventResult<string, ErrorCode>> Commit()
         {
             foreach (var chroncileEvent in _livingChronicleEvents)
             {
                 try
                 {
                     var eventResult = await chroncileEvent.Action();
-                    if (eventResult is EventResult<ErrorCode>.Error)
+                    if (eventResult is EventResult<string, ErrorCode>.Error)
                     {
                         await Rollback();
                         return eventResult;
@@ -41,22 +41,23 @@ namespace FileChronicles
                 }
                 catch (TaskCanceledException)
                 {
-                    return new EventResult<ErrorCode>.Error(ErrorCode.EventCancelled);
+                    return new EventResult<string,ErrorCode>.Error(ErrorCode.EventCancelled);
                 }
                 
             }
-            return new EventResult<ErrorCode>.Success();
+            return new EventResult<string, ErrorCode>.Success(string.Empty);//TODO: This doesnt feel good. maybe this shouldnt be returning a string
         }
 
-        public async Task<EventResult<ErrorCode>> Rollback()
+        public async Task<EventResult<int, ErrorCode>> Rollback()
         {
             foreach (var chronicleEvent in _deadChronicleEvents)
             {
                 await chronicleEvent.RollBack();
             }
+            var count = _deadChronicleEvents.Count;
             _livingChronicleEvents = new List<IChronicleEvent>();
             _deadChronicleEvents = new List<IChronicleEvent>();
-            return new EventResult<ErrorCode>.Success();
+            return new EventResult<int, ErrorCode>.Success(count);
         }
     }
 }

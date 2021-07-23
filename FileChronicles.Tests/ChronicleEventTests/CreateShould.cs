@@ -30,6 +30,20 @@ namespace FileChronicles.Tests.ChronicleEventTests
         }
 
         [Fact]
+        public async Task CreateAFileGivesMeInfo()
+        {
+            var path = "TestFile.txt";
+            using SafeFile safeFile1 = SafeFile.Clear(path);
+            var chronicler = Chronicler.Begin();
+            CancellationTokenSource tokenSource = new CancellationTokenSource();
+            CancellationToken token = tokenSource.Token;
+            var eventResult = await chronicler.Create(path, GetTestContentsBytes(), token);
+            var filePath = eventResult.Match(filePath => filePath, errorCode => errorCode.ToString());
+
+            Assert.Equal(path, filePath);
+        }
+
+        [Fact]
         public async Task NotCreateFileUntilCommit()
         {
             var path = "TestFile.txt";

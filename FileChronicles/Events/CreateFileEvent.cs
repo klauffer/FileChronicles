@@ -17,30 +17,30 @@ namespace FileChronicles.Events
             _cancellationToken = cancellationToken;
         }
 
-        public Task<EventResult<ErrorCode>> Validate()
+        public Task<EventResult<string, ErrorCode>> Validate()
         {
-            EventResult<ErrorCode> result = new EventResult<ErrorCode>.Success();
+            EventResult<string, ErrorCode> result = new EventResult<string, ErrorCode>.Success(_fileName);
             if (File.Exists(_fileName))
             {
-                result = new EventResult<ErrorCode>.Error(ErrorCode.FileAlreadyExists);
+                result = new EventResult<string, ErrorCode>.Error(ErrorCode.FileAlreadyExists);
             }
             return Task.FromResult(result);
         }
 
-        public async Task<EventResult<ErrorCode>> Action()
+        public async Task<EventResult<string, ErrorCode>> Action()
         {
             if (!File.Exists(_fileName))
             {
                 await File.WriteAllBytesAsync(_fileName, _bytes, _cancellationToken);
-                return new EventResult<ErrorCode>.Success();
+                return new EventResult<string, ErrorCode>.Success(_fileName);
             }
-            return new EventResult<ErrorCode>.Error(ErrorCode.FileAlreadyExists);
+            return new EventResult<string, ErrorCode>.Error(ErrorCode.FileAlreadyExists);
         }
 
-        public Task<EventResult<ErrorCode>> RollBack()
+        public Task<EventResult<string, ErrorCode>> RollBack()
         {
             File.Delete(_fileName);
-            EventResult<ErrorCode> eventResult = new EventResult<ErrorCode>.Success();
+            EventResult<string, ErrorCode> eventResult = new EventResult<string, ErrorCode>.Success(_fileName);
             return Task.FromResult(eventResult);
         }
     }
