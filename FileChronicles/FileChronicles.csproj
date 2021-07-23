@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <PackageId>FileChronicles</PackageId>
-    <Version>0.0.1-alpha</Version>
+    <Version>0.0.2-alpha</Version>
     <TargetFramework>netstandard2.1</TargetFramework>
     <Authors>Kyle Lauffer</Authors>
     <Description>Transactional File Operations</Description>
