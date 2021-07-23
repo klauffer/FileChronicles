@@ -21,7 +21,7 @@ namespace FileChronicles
         }
 
         /// <summary>
-        /// Begins a new Chronicler that will track the this Chonicle
+        /// Begins a new Chronicler that will track this Chonicle
         /// </summary>
         /// <returns>a new Chronicler</returns>
         public static Chronicler Begin() => new Chronicler();
