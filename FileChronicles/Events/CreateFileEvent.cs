@@ -17,30 +17,30 @@ namespace FileChronicles.Events
             _cancellationToken = cancellationToken;
         }
 
-        public Task<EventResult<string, ErrorCode>> Validate()
+        public Task<EventResult<EventInfo, ErrorCode>> Validate()
         {
-            EventResult<string, ErrorCode> result = new EventResult<string, ErrorCode>.Success(_fileName);
+            EventResult<EventInfo, ErrorCode> result = new EventResult<EventInfo, ErrorCode>.Success(new EventInfo(_fileName, EventInfo.EventTypes.Create));
             if (File.Exists(_fileName))
             {
-                result = new EventResult<string, ErrorCode>.Error(ErrorCode.FileAlreadyExists);
+                result = new EventResult<EventInfo, ErrorCode>.Error(ErrorCode.FileAlreadyExists);
             }
             return Task.FromResult(result);
         }
 
-        public async Task<EventResult<string, ErrorCode>> Action()
+        public async Task<EventResult<EventInfo, ErrorCode>> Action()
         {
             if (!File.Exists(_fileName))
             {
                 await File.WriteAllBytesAsync(_fileName, _bytes, _cancellationToken);
-                return new EventResult<string, ErrorCode>.Success(_fileName);
+                return new EventResult<EventInfo, ErrorCode>.Success(new EventInfo(_fileName, EventInfo.EventTypes.Create));
             }
-            return new EventResult<string, ErrorCode>.Error(ErrorCode.FileAlreadyExists);
+            return new EventResult<EventInfo, ErrorCode>.Error(ErrorCode.FileAlreadyExists);
         }
 
-        public Task<EventResult<string, ErrorCode>> RollBack()
+        public Task<EventResult<EventInfo, ErrorCode>> RollBack()
         {
             File.Delete(_fileName);
-            EventResult<string, ErrorCode> eventResult = new EventResult<string, ErrorCode>.Success(_fileName);
+            EventResult<EventInfo, ErrorCode> eventResult = new EventResult<EventInfo, ErrorCode>.Success(new EventInfo(_fileName, EventInfo.EventTypes.Create));
             return Task.FromResult(eventResult);
         }
     }

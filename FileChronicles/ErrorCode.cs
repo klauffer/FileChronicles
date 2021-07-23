@@ -6,6 +6,10 @@
     public enum ErrorCode
     {
         /// <summary>
+        /// Represents No Error
+        /// </summary>
+        None,
+        /// <summary>
         /// When the a file already exists in the destination location
         /// </summary>
         FileAlreadyExists,

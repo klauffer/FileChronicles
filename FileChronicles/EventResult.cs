@@ -30,6 +30,7 @@ namespace FileChronicles
         /// <returns>The result of handling each case.</returns>
         public abstract T Match<T>(Func<SuccessType, T> success, Func<ErrorType, T> error);
 
+
         /// <summary>
         /// a Successful Event
         /// </summary>
@@ -93,5 +94,12 @@ namespace FileChronicles
                 action();
             }
         }
+
+        //public static EventResult<ResultSuccessType, ResultErrorType> Select<ResultSuccessType, ResultErrorType, SuccessType, ErrorType>(this EventResult<SuccessType, ErrorType> source, 
+        //                                                                                                                                 Func<SuccessType, ErrorType, EventResult<ResultSuccessType, ResultErrorType>> selector )
+        //{
+        //    return source.Match(successType => new EventResult<ResultSuccessType, ResultErrorType>.Success(selector(successType)),
+        //                        ErrorType => new EventResult<ResultSuccessType, ResultErrorType>.Error(selector(ErrorType)));
+        //}
     }
 }

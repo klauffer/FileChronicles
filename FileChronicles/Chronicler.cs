@@ -30,7 +30,7 @@ namespace FileChronicles
         /// Commits all recorded events in the chronicle tracked by this Chronicler
         /// </summary>
         /// <returns></returns>
-        public async Task<EventResult<string, ErrorCode>> Commit()
+        public async Task<EventResult<int, ErrorCode>> Commit()
         {
             return await _chronicle.Commit();
         }
@@ -51,7 +51,7 @@ namespace FileChronicles
         /// <param name="bytes">the contents of the file</param>
         /// <param name="cancellationToken">to cancel writing the file</param>
         /// <returns></returns>
-        public async Task<EventResult<string, ErrorCode>> Create(string path, byte[] bytes, CancellationToken cancellationToken = default)
+        public async Task<EventResult<EventInfo, ErrorCode>> Create(string path, byte[] bytes, CancellationToken cancellationToken = default)
         {
             var createFileEvent = new CreateFileEvent(path, bytes, cancellationToken);
             return await _chronicle.AddEvent(createFileEvent);

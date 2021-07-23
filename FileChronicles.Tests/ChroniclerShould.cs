@@ -8,6 +8,7 @@ namespace FileChronicles.Tests
 {
     public class ChroniclerShould
     {
+        private static byte[] FileContents => System.Array.Empty<byte>();
 
         [Fact]
         public async Task CommitMoreThenOneAction()
@@ -20,8 +21,8 @@ namespace FileChronicles.Tests
             await using var chronicler = Chronicler.Begin();
             CancellationTokenSource tokenSource = new CancellationTokenSource();
             CancellationToken token = tokenSource.Token;
-            await chronicler.Create(fileName1, new byte[0], token);
-            await chronicler.Create(fileName2, new byte[0], token);
+            await chronicler.Create(fileName1, FileContents, token);
+            await chronicler.Create(fileName2, FileContents, token);
             var eventResult = await chronicler.Commit();
 
             Assert.True(eventResult.Match(() => true, errorCode => false));
@@ -42,8 +43,8 @@ namespace FileChronicles.Tests
 
             await using var chronicler = Chronicler.Begin();
 
-            await chronicler.Create(fileName1, new byte[0], token);
-            await chronicler.Create(fileName2, new byte[0], token);
+            await chronicler.Create(fileName1, FileContents, token);
+            await chronicler.Create(fileName2, FileContents, token);
 
             //create the first file to cause error
             using SafeFile safeFile1Duplicate = SafeFile.Create(fileName1Duplicate);
@@ -66,7 +67,7 @@ namespace FileChronicles.Tests
             CancellationToken token = tokenSource.Token;
 
             await using var chronicler = Chronicler.Begin();
-            var event2 = await chronicler.Create(fileName2, new byte[0], token);
+            var event2 = await chronicler.Create(fileName2, FileContents, token);
             var errorMessage = event2.Match(() => "Doh!", errorCode => errorCode.ToString());
             Assert.Equal(ErrorCode.FileAlreadyExists.ToString(), errorMessage);
         }
@@ -85,8 +86,8 @@ namespace FileChronicles.Tests
             CancellationToken token = tokenSource.Token;
 
             await using var chronicler = Chronicler.Begin();
-            var event1 = await chronicler.Create(fileName1, new byte[0], token);
-            var event2 = await chronicler.Create(fileName2, new byte[0], token);
+            var event1 = await chronicler.Create(fileName1, FileContents, token);
+            var event2 = await chronicler.Create(fileName2, FileContents, token);
 
             //create the second file to cause error after the initial create
             using SafeFile safeFile2Duplicate = SafeFile.Create(fileName2Duplicate);
@@ -106,7 +107,7 @@ namespace FileChronicles.Tests
             CancellationToken token = tokenSource.Token;
 
             await using var chronicler = Chronicler.Begin();
-            await chronicler.Create(fileName1, new byte[0], token);
+            await chronicler.Create(fileName1, FileContents, token);
             await chronicler.Rollback();
             await chronicler.Commit();
 

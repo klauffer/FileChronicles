@@ -15,37 +15,44 @@ namespace FileChronicles
             _deadChronicleEvents = new List<IChronicleEvent>();
         }
 
-        public async Task<EventResult<string, ErrorCode>> AddEvent(IChronicleEvent chronicleEvent)
+        public async Task<EventResult<EventInfo, ErrorCode>> AddEvent(IChronicleEvent chronicleEvent)
         {
             var eventResult = await chronicleEvent.Validate();
             eventResult.IfSuccess(() => _livingChronicleEvents.Add(chronicleEvent));
             return eventResult;
         }
 
-        public async Task<EventResult<string, ErrorCode>> Commit()
+        public async Task<EventResult<int, ErrorCode>> Commit()
         {
+            ErrorCode shortCircuitErrorCode = ErrorCode.None;
             foreach (var chroncileEvent in _livingChronicleEvents)
             {
                 try
                 {
                     var eventResult = await chroncileEvent.Action();
-                    if (eventResult is EventResult<string, ErrorCode>.Error)
+                    var successfulAction = await eventResult.Match(() =>
+                                            {
+                                                _deadChronicleEvents.Add(chroncileEvent);
+                                                return Task.FromResult(true);
+                                            }, 
+                                            async errorCode =>
+                                            {
+                                                await Rollback();
+                                                shortCircuitErrorCode = errorCode;
+                                                return false;
+                                            });
+                    if (!successfulAction)
                     {
-                        await Rollback();
-                        return eventResult;
-                    }
-                    else
-                    {
-                        _deadChronicleEvents.Add(chroncileEvent);
+                        return new EventResult<int, ErrorCode>.Error(shortCircuitErrorCode);
                     }
                 }
                 catch (TaskCanceledException)
                 {
-                    return new EventResult<string,ErrorCode>.Error(ErrorCode.EventCancelled);
+                    return new EventResult<int, ErrorCode>.Error(ErrorCode.EventCancelled);
                 }
                 
             }
-            return new EventResult<string, ErrorCode>.Success(string.Empty);//TODO: This doesnt feel good. maybe this shouldnt be returning a string
+            return new EventResult<int, ErrorCode>.Success(_deadChronicleEvents.Count);//TODO: This doesnt feel good. maybe this shouldnt be returning a string
         }
 
         public async Task<EventResult<int, ErrorCode>> Rollback()
