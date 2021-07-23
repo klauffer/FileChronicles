@@ -52,4 +52,15 @@ namespace FileChronicles
             public override T Match<T>(Func<T> success, Func<ErrorType, T> error) => error(_errorInfo);
         }
     }
+
+    public static class Extensions
+    {
+        internal static void IfSuccess<T>(this EventResult<T> eventResult, Action action)
+        {
+            if (eventResult is EventResult<T>.Success)
+            {
+                action();
+            }
+        }
+    }
 }

@@ -22,7 +22,7 @@ namespace FileChronicles.Tests.ChronicleEventTests
             var chronicler = Chronicler.Begin();
             CancellationTokenSource tokenSource = new CancellationTokenSource();
             CancellationToken token = tokenSource.Token;
-            chronicler.Create(path, GetTestContentsBytes(), token);
+            await chronicler.Create(path, GetTestContentsBytes(), token);
             var eventResult = await chronicler.Commit();
             var text = eventResult.Match(() => File.ReadAllText(path), errorCode => errorCode.ToString());
 
@@ -30,14 +30,14 @@ namespace FileChronicles.Tests.ChronicleEventTests
         }
 
         [Fact]
-        public void NotCreateFileUntilCommit()
+        public async Task NotCreateFileUntilCommit()
         {
             var path = "TestFile.txt";
             using SafeFile safeFile1 = SafeFile.Clear(path);
             var chronicler = Chronicler.Begin();
             CancellationTokenSource tokenSource = new CancellationTokenSource();
             CancellationToken token = tokenSource.Token;
-            chronicler.Create(path, GetTestContentsBytes(), token);
+            await chronicler.Create(path, GetTestContentsBytes(), token);
             Assert.False(File.Exists(path));
         }
 
@@ -51,9 +51,8 @@ namespace FileChronicles.Tests.ChronicleEventTests
             CancellationTokenSource tokenSource = new CancellationTokenSource();
             CancellationToken token = tokenSource.Token;
 
-            chronicler.Create(path, GetTestContentsBytes(), token);
-            var eventResult = await chronicler.Commit();
-
+            var eventResult = await chronicler.Create(path, GetTestContentsBytes(), token);
+            
             var errorCode = eventResult.Match(() => "Doh!", errorCode => errorCode.ToString());
             Assert.Equal(ErrorCode.FileAlreadyExists.ToString(), errorCode);
         }
@@ -68,7 +67,7 @@ namespace FileChronicles.Tests.ChronicleEventTests
             CancellationTokenSource tokenSource = new CancellationTokenSource();
             CancellationToken token = tokenSource.Token;
 
-            chronicler.Create(path, GetTestContentsBytes(), token);
+            await chronicler.Create(path, GetTestContentsBytes(), token);
             tokenSource.Cancel();
 
             var eventResult = await chronicler.Commit();

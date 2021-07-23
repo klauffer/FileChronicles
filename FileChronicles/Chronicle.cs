@@ -15,7 +15,12 @@ namespace FileChronicles
             _deadChronicleEvents = new List<IChronicleEvent>();
         }
 
-        public void AddEvent(IChronicleEvent chronicleEvent) => _livingChronicleEvents.Add(chronicleEvent);
+        public async Task<EventResult<ErrorCode>> AddEvent(IChronicleEvent chronicleEvent)
+        {
+            var eventResult = await chronicleEvent.Validate();
+            eventResult.IfSuccess(() => _livingChronicleEvents.Add(chronicleEvent));
+            return eventResult;
+        }
 
         public async Task<EventResult<ErrorCode>> Commit()
         {

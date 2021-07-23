@@ -17,6 +17,16 @@ namespace FileChronicles.Events
             _cancellationToken = cancellationToken;
         }
 
+        public Task<EventResult<ErrorCode>> Validate()
+        {
+            EventResult<ErrorCode> result = new EventResult<ErrorCode>.Success();
+            if (File.Exists(_fileName))
+            {
+                result = new EventResult<ErrorCode>.Error(ErrorCode.FileAlreadyExists);
+            }
+            return Task.FromResult(result);
+        }
+
         public async Task<EventResult<ErrorCode>> Action()
         {
             if (!File.Exists(_fileName))

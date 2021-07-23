@@ -53,10 +53,10 @@ namespace FileChronicles
         /// <param name="bytes">the contents of the file</param>
         /// <param name="cancellationToken">to cancel writing the file</param>
         /// <returns></returns>
-        public void Create(string path, byte[] bytes, CancellationToken cancellationToken = default)
+        public async Task<EventResult<ErrorCode>> Create(string path, byte[] bytes, CancellationToken cancellationToken = default)
         {
             var createFileEvent = new CreateFileEvent(path, bytes, cancellationToken);
-            _chronicle.AddEvent(createFileEvent);
+            return await _chronicle.AddEvent(createFileEvent);
 
         }
 
