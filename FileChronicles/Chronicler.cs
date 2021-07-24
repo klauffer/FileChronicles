@@ -45,17 +45,28 @@ namespace FileChronicles
         }
 
         /// <summary>
-        /// Creates a file at the specified location with the contents being the specified Bytes
+        /// Creates a file with contents
         /// </summary>
-        /// <param name="path">The location where the file will be made</param>
+        /// <param name="fileName">The location where the file will be made</param>
         /// <param name="bytes">the contents of the file</param>
         /// <param name="cancellationToken">to cancel writing the file</param>
         /// <returns></returns>
-        public async Task<EventResult<EventInfo, ErrorCode>> Create(string path, byte[] bytes, CancellationToken cancellationToken = default)
+        public async Task<EventResult<EventInfo, ErrorCode>> Create(string fileName, byte[] bytes, CancellationToken cancellationToken = default)
         {
-            var createFileEvent = new CreateFileEvent(path, bytes, cancellationToken);
+            var createFileEvent = new CreateFileEvent(fileName, bytes, cancellationToken);
             return await _chronicle.AddEvent(createFileEvent);
 
+        }
+
+        /// <summary>
+        /// Deletes a file
+        /// </summary>
+        /// <param name="fileName">the file to be deleted</param>
+        /// <param name="cancellationToken">to cancel deleting the file</param>
+        /// <returns></returns>
+        public async Task<EventResult<EventInfo, ErrorCode>> Delete(string fileName, CancellationToken cancellationToken = default)
+        {
+            return await _chronicle.AddEvent(new DeleteFileEvent(fileName, cancellationToken));
         }
 
         /// <summary>

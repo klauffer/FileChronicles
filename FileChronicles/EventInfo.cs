@@ -37,7 +37,11 @@
             /// <summary>
             /// A file was created
             /// </summary>
-            Create
+            Create,
+            /// <summary>
+            /// A file was deleted
+            /// </summary>
+            Delete
         }
     }
 }

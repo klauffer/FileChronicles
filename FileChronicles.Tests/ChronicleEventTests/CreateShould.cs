@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,12 +13,14 @@ namespace FileChronicles.Tests.ChronicleEventTests
 
         private readonly string _testContents = "This is a test";
 
+        private static string GetNewFileName() => Guid.NewGuid().ToString();
+
         private byte[] GetTestContentsBytes() => Encoding.ASCII.GetBytes(_testContents);
 
         [Fact]
         public async Task CreateAFile()
         {
-            var path = "TestFile.txt";
+            var path = GetNewFileName();
             using SafeFile safeFile1 = SafeFile.Clear(path);
             var chronicler = Chronicler.Begin();
             CancellationTokenSource tokenSource = new CancellationTokenSource();
@@ -30,9 +33,9 @@ namespace FileChronicles.Tests.ChronicleEventTests
         }
 
         [Fact]
-        public async Task CreateGivesMeInfo()
+        public async Task GiveMeInfo()
         {
-            var path = "TestFile.txt";
+            var path = GetNewFileName();
             using SafeFile safeFile1 = SafeFile.Clear(path);
             var chronicler = Chronicler.Begin();
             CancellationTokenSource tokenSource = new CancellationTokenSource();
@@ -46,7 +49,7 @@ namespace FileChronicles.Tests.ChronicleEventTests
         [Fact]
         public async Task NotCreateFileUntilCommit()
         {
-            var path = "TestFile.txt";
+            var path = GetNewFileName();
             using SafeFile safeFile1 = SafeFile.Clear(path);
             var chronicler = Chronicler.Begin();
             CancellationTokenSource tokenSource = new CancellationTokenSource();
@@ -58,7 +61,7 @@ namespace FileChronicles.Tests.ChronicleEventTests
         [Fact]
         public async Task FailWhenFileAlreadyExists()
         {
-            var path = "FailWhenFileAlreadyExists.txt";
+            var path = GetNewFileName();
             using var safeFile = SafeFile.Create(path);
 
             var chronicler = Chronicler.Begin();
@@ -74,7 +77,7 @@ namespace FileChronicles.Tests.ChronicleEventTests
         [Fact]
         public async Task HonorCancellationToken()
         {
-            var path = "test.txt";
+            var path = GetNewFileName();
             using var safeFile = SafeFile.Clear(path);
 
             var chronicler = Chronicler.Begin();
