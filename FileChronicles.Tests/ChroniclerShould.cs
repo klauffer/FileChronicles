@@ -6,23 +6,21 @@ using Xunit;
 
 namespace FileChronicles.Tests
 {
-    public class ChroniclerShould
+    public class ChroniclerShould : TestFixture
     {
-        private static byte[] FileContents => System.Array.Empty<byte>();
-
         [Fact]
         public async Task CommitMoreThenOneAction()
         {
-            var fileName1 = "TestFile1.txt";
-            var fileName2 = "TestFile2.txt";
+            var fileName1 = GetFileFullPath();
+            var fileName2 = GetFileFullPath();
             using SafeFile safeFile1 = SafeFile.Clear(fileName1),
                            safeFile2 = SafeFile.Clear(fileName2);
 
             await using var chronicler = Chronicler.Begin();
             CancellationTokenSource tokenSource = new CancellationTokenSource();
             CancellationToken token = tokenSource.Token;
-            await chronicler.Create(fileName1, FileContents, token);
-            await chronicler.Create(fileName2, FileContents, token);
+            await chronicler.Create(fileName1, _emptyFileContents, token);
+            await chronicler.Create(fileName2, _emptyFileContents, token);
             var eventResult = await chronicler.Commit();
 
             Assert.True(eventResult.Match(() => true, errorCode => false));
@@ -33,9 +31,9 @@ namespace FileChronicles.Tests
         [Fact]
         public async Task StopOnFirstError()
         {
-            var fileName1 = "TestFile1.txt";
-            var fileName1Duplicate = "TestFile1.txt";
-            var fileName2 = "TestFile2.txt";
+            var fileName1 = GetFileFullPath();
+            var fileName1Duplicate = fileName1;
+            var fileName2 = GetFileFullPath();
             using SafeFile safeFile1 = SafeFile.Clear(fileName1),
                            safeFile2 = SafeFile.Clear(fileName2);
             CancellationTokenSource tokenSource = new CancellationTokenSource();
@@ -43,8 +41,8 @@ namespace FileChronicles.Tests
 
             await using var chronicler = Chronicler.Begin();
 
-            await chronicler.Create(fileName1, FileContents, token);
-            await chronicler.Create(fileName2, FileContents, token);
+            await chronicler.Create(fileName1, _emptyFileContents, token);
+            await chronicler.Create(fileName2, _emptyFileContents, token);
 
             //create the first file to cause error
             using SafeFile safeFile1Duplicate = SafeFile.Create(fileName1Duplicate);
@@ -59,15 +57,15 @@ namespace FileChronicles.Tests
         public async Task EventShouldFailEarly()
         {
 
-            var fileName2 = "TestFile2.txt";
-            var fileName2Duplicate = "TestFile2.txt";
+            var fileName2 = GetFileFullPath();
+            var fileName2Duplicate = fileName2;
             using SafeFile safeFile2 = SafeFile.Clear(fileName2),
                            safeFile2Duplicate = SafeFile.Create(fileName2Duplicate);//create the second file to cause error
             CancellationTokenSource tokenSource = new CancellationTokenSource();
             CancellationToken token = tokenSource.Token;
 
             await using var chronicler = Chronicler.Begin();
-            var event2 = await chronicler.Create(fileName2, FileContents, token);
+            var event2 = await chronicler.Create(fileName2, _emptyFileContents, token);
             var errorMessage = event2.Match(() => "Doh!", errorCode => errorCode.ToString());
             Assert.Equal(ErrorCode.FileAlreadyExists.ToString(), errorMessage);
         }
@@ -76,9 +74,9 @@ namespace FileChronicles.Tests
         public async Task RollbackChangesOnError()
         {
 
-            var fileName1 = "TestFile1.txt";
-            var fileName2 = "TestFile2.txt";
-            var fileName2Duplicate = "TestFile2.txt";
+            var fileName1 = GetFileFullPath();
+            var fileName2 = GetFileFullPath();
+            var fileName2Duplicate = fileName2;
             using SafeFile safeFile1 = SafeFile.Clear(fileName1),
                            safeFile2 = SafeFile.Clear(fileName2);
 
@@ -86,8 +84,8 @@ namespace FileChronicles.Tests
             CancellationToken token = tokenSource.Token;
 
             await using var chronicler = Chronicler.Begin();
-            var event1 = await chronicler.Create(fileName1, FileContents, token);
-            var event2 = await chronicler.Create(fileName2, FileContents, token);
+            var event1 = await chronicler.Create(fileName1, _emptyFileContents, token);
+            var event2 = await chronicler.Create(fileName2, _emptyFileContents, token);
 
             //create the second file to cause error after the initial create
             using SafeFile safeFile2Duplicate = SafeFile.Create(fileName2Duplicate);
@@ -101,13 +99,13 @@ namespace FileChronicles.Tests
         [Fact]
         public async Task RollbackRemovesUncommittedChanges()
         {
-            var fileName1 = "TestFile1.txt";
+            var fileName1 = GetFileFullPath();
             using SafeFile safeFile1 = SafeFile.Clear(fileName1);
             CancellationTokenSource tokenSource = new CancellationTokenSource();
             CancellationToken token = tokenSource.Token;
 
             await using var chronicler = Chronicler.Begin();
-            await chronicler.Create(fileName1, FileContents, token);
+            await chronicler.Create(fileName1, _emptyFileContents, token);
             await chronicler.Rollback();
             await chronicler.Commit();
 

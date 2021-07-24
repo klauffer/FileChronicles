@@ -11,21 +11,30 @@ namespace FileChronicles.Events
     {
         private readonly string _fileName;
         private readonly CancellationToken _cancellationToken;
+        private byte[] fileContents;
 
         public DeleteFileEvent(string fileName, CancellationToken cancellationToken)
         {
             _fileName = fileName;
             _cancellationToken = cancellationToken;
+            fileContents = Array.Empty<byte>();
         }
 
-        public Task<EventResult<EventInfo, ErrorCode>> Action()
+        public async Task<EventResult<EventInfo, ErrorCode>> Action()
         {
-            throw new NotImplementedException();
+            fileContents = await File.ReadAllBytesAsync(_fileName, _cancellationToken);
+            File.Delete(_fileName);
+            var eventInfo = new EventInfo(_fileName, EventInfo.EventTypes.Delete);
+            EventResult<EventInfo, ErrorCode> eventResult = new EventResult<EventInfo, ErrorCode>.Success(eventInfo);
+            return eventResult;
         }
 
-        public Task<EventResult<EventInfo, ErrorCode>> RollBack()
+        public async Task<EventResult<EventInfo, ErrorCode>> RollBack()
         {
-            throw new NotImplementedException();
+            await File.WriteAllBytesAsync(_fileName, fileContents, _cancellationToken);
+            var eventInfo = new EventInfo(_fileName, EventInfo.EventTypes.Delete);
+            EventResult<EventInfo, ErrorCode> eventResult = new EventResult<EventInfo, ErrorCode>.Success(eventInfo);
+            return eventResult;
         }
 
         public Task<EventResult<EventInfo, ErrorCode>> Validate()
