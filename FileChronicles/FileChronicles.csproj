@@ -1,8 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <PackageId>FileChronicles</PackageId>
-    <Version>0.0.2-alpha</Version>
+    <Version>0.0.3-alpha</Version>
     <TargetFramework>netstandard2.1</TargetFramework>
     <Authors>Kyle Lauffer</Authors>
     <Description>Transactional File Operations</Description>
