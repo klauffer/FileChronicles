@@ -17,7 +17,7 @@ namespace FileChronicles
 
         public async Task<EventResult<EventInfo, ErrorCode>> AddEvent(IChronicleEvent chronicleEvent)
         {
-            var eventResult = await chronicleEvent.Validate();
+            var eventResult = await chronicleEvent.Stage();
             eventResult.IfSuccess(() => _livingChronicleEvents.Add(chronicleEvent));
             return eventResult;
         }
@@ -52,6 +52,7 @@ namespace FileChronicles
                 }
                 
             }
+            //maybe clear living events here?
             return new EventResult<int, ErrorCode>.Success(_deadChronicleEvents.Count);//TODO: This doesnt feel good. maybe this shouldnt be returning a string
         }
 

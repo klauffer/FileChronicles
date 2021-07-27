@@ -13,7 +13,7 @@ namespace FileChronicles.Tests.ChronicleEventTests
         [Fact]
         public async Task GiveMeInfo()
         {
-            var path = GetFileFullPath();
+            var path = GetNewFileFullPath();
             using SafeFile safeFile1 = SafeFile.Create(path);
             var chronicler = Chronicler.Begin();
             CancellationTokenSource tokenSource = new CancellationTokenSource();
@@ -27,7 +27,7 @@ namespace FileChronicles.Tests.ChronicleEventTests
         [Fact]
         public async Task DeleteFileOnCommit()
         {
-            var path = GetFileFullPath();
+            var path = GetNewFileFullPath();
             using SafeFile safeFile1 = SafeFile.Create(path);
             var chronicler = Chronicler.Begin();
             CancellationTokenSource tokenSource = new CancellationTokenSource();
@@ -42,7 +42,7 @@ namespace FileChronicles.Tests.ChronicleEventTests
         [Fact]
         public async Task RollbackDeletedFile()
         {
-            var path = GetFileFullPath();
+            var path = GetNewFileFullPath();
             using SafeFile safeFile1 = SafeFile.Create(path);
             var chronicler = Chronicler.Begin();
             CancellationTokenSource tokenSource = new CancellationTokenSource();
@@ -58,7 +58,7 @@ namespace FileChronicles.Tests.ChronicleEventTests
         [Fact]
         public async Task RollbackDeletedFileContainsSameContents()
         {
-            var path = GetFileFullPath();
+            var path = GetNewFileFullPath();
             using SafeFile safeFile1 = SafeFile.Create(path, _fileContentsBytes);
             var chronicler = Chronicler.Begin();
             CancellationTokenSource tokenSource = new CancellationTokenSource();

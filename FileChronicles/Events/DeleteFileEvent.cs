@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using FileChronicles.InMemoryFileSystem;
 
 namespace FileChronicles.Events
 {
@@ -11,13 +12,15 @@ namespace FileChronicles.Events
     {
         private readonly string _fileName;
         private readonly CancellationToken _cancellationToken;
+        private readonly FileManager _fileManager;
         private byte[] fileContents;
 
-        public DeleteFileEvent(string fileName, CancellationToken cancellationToken)
+        public DeleteFileEvent(string fileName, FileManager fileManager, CancellationToken cancellationToken)
         {
             _fileName = fileName;
             _cancellationToken = cancellationToken;
             fileContents = Array.Empty<byte>();
+            _fileManager = fileManager;
         }
 
         public async Task<EventResult<EventInfo, ErrorCode>> Action()
@@ -37,11 +40,12 @@ namespace FileChronicles.Events
             return eventResult;
         }
 
-        public Task<EventResult<EventInfo, ErrorCode>> Validate()
+        public Task<EventResult<EventInfo, ErrorCode>> Stage()
         {
-            if (File.Exists(_fileName))
+            if (_fileManager.Exists(_fileName) || File.Exists(_fileName))
             {
-                EventResult<EventInfo, ErrorCode> successResult = new EventResult<EventInfo, ErrorCode>.Success(new EventInfo(_fileName, EventInfo.EventTypes.Create));
+                _fileManager.Delete(_fileName);
+                EventResult<EventInfo, ErrorCode> successResult = new EventResult<EventInfo, ErrorCode>.Success(new EventInfo(_fileName, EventInfo.EventTypes.Delete));
                 return Task.FromResult(successResult);
             }
             EventResult<EventInfo, ErrorCode> errorResult = new EventResult<EventInfo, ErrorCode>.Error(ErrorCode.FileDoesNotExist);

@@ -4,7 +4,7 @@ namespace FileChronicles.Events
 {
     internal interface IChronicleEvent
     {
-        Task<EventResult<EventInfo, ErrorCode>> Validate();
+        Task<EventResult<EventInfo, ErrorCode>> Stage();
 
         Task<EventResult<EventInfo, ErrorCode>> Action();
 

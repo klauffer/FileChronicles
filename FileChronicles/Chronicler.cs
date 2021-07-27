@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using FileChronicles.Events;
+using FileChronicles.InMemoryFileSystem;
 
 namespace FileChronicles
 {
@@ -11,6 +12,7 @@ namespace FileChronicles
     public class Chronicler : IAsyncDisposable
     {
         private readonly Chronicle _chronicle;
+        private readonly FileManager _inMemoryFileSystem;
 
         /// <summary>
         /// Keep Chronicler from being instantiated directly
@@ -18,6 +20,7 @@ namespace FileChronicles
         private Chronicler() 
         {
             _chronicle = new Chronicle();
+            _inMemoryFileSystem = new FileManager();
         }
 
         /// <summary>
@@ -53,7 +56,7 @@ namespace FileChronicles
         /// <returns></returns>
         public async Task<EventResult<EventInfo, ErrorCode>> Create(string fileName, byte[] bytes, CancellationToken cancellationToken = default)
         {
-            var createFileEvent = new CreateFileEvent(fileName, bytes, cancellationToken);
+            var createFileEvent = new CreateFileEvent(fileName, bytes, _inMemoryFileSystem, cancellationToken);
             return await _chronicle.AddEvent(createFileEvent);
 
         }
@@ -66,7 +69,7 @@ namespace FileChronicles
         /// <returns></returns>
         public async Task<EventResult<EventInfo, ErrorCode>> Delete(string fileName, CancellationToken cancellationToken = default)
         {
-            return await _chronicle.AddEvent(new DeleteFileEvent(fileName, cancellationToken));
+            return await _chronicle.AddEvent(new DeleteFileEvent(fileName, _inMemoryFileSystem, cancellationToken));
         }
 
         /// <summary>

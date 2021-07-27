@@ -13,6 +13,6 @@ namespace FileChronicles.Tests
 
         private static string GetNewFileName() => Guid.NewGuid().ToString();
 
-        protected static string GetFileFullPath(int id = 0) => $"{GetNewFileName()}-{id}.txt";
+        protected static string GetNewFileFullPath(int id = 0) => $"{GetNewFileName()}-{id}.txt";
     }
 }

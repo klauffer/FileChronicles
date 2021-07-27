@@ -12,7 +12,7 @@ namespace FileChronicles.Tests.ChronicleEventTests
         [Fact]
         public async Task CreateAFile()
         {
-            var path = GetFileFullPath();
+            var path = GetNewFileFullPath();
             using SafeFile safeFile1 = SafeFile.Clear(path);
             var chronicler = Chronicler.Begin();
             CancellationTokenSource tokenSource = new CancellationTokenSource();
@@ -27,7 +27,7 @@ namespace FileChronicles.Tests.ChronicleEventTests
         [Fact]
         public async Task GiveMeInfo()
         {
-            var path = GetFileFullPath();
+            var path = GetNewFileFullPath();
             using SafeFile safeFile1 = SafeFile.Clear(path);
             var chronicler = Chronicler.Begin();
             CancellationTokenSource tokenSource = new CancellationTokenSource();
@@ -41,7 +41,7 @@ namespace FileChronicles.Tests.ChronicleEventTests
         [Fact]
         public async Task NotCreateFileUntilCommit()
         {
-            var path = GetFileFullPath();
+            var path = GetNewFileFullPath();
             using SafeFile safeFile1 = SafeFile.Clear(path);
             var chronicler = Chronicler.Begin();
             CancellationTokenSource tokenSource = new CancellationTokenSource();
@@ -53,7 +53,7 @@ namespace FileChronicles.Tests.ChronicleEventTests
         [Fact]
         public async Task FailWhenFileAlreadyExists()
         {
-            var path = GetFileFullPath();
+            var path = GetNewFileFullPath();
             using var safeFile = SafeFile.Create(path);
 
             var chronicler = Chronicler.Begin();
@@ -69,7 +69,7 @@ namespace FileChronicles.Tests.ChronicleEventTests
         [Fact]
         public async Task HonorCancellationToken()
         {
-            var path = GetFileFullPath();
+            var path = GetNewFileFullPath();
             using var safeFile = SafeFile.Clear(path);
 
             var chronicler = Chronicler.Begin();

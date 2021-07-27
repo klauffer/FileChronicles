@@ -11,8 +11,8 @@ namespace FileChronicles.Tests
         [Fact]
         public async Task CommitMoreThenOneAction()
         {
-            var fileName1 = GetFileFullPath();
-            var fileName2 = GetFileFullPath();
+            var fileName1 = GetNewFileFullPath();
+            var fileName2 = GetNewFileFullPath();
             using SafeFile safeFile1 = SafeFile.Clear(fileName1),
                            safeFile2 = SafeFile.Clear(fileName2);
 
@@ -31,9 +31,9 @@ namespace FileChronicles.Tests
         [Fact]
         public async Task StopOnFirstError()
         {
-            var fileName1 = GetFileFullPath();
+            var fileName1 = GetNewFileFullPath();
             var fileName1Duplicate = fileName1;
-            var fileName2 = GetFileFullPath();
+            var fileName2 = GetNewFileFullPath();
             using SafeFile safeFile1 = SafeFile.Clear(fileName1),
                            safeFile2 = SafeFile.Clear(fileName2);
             CancellationTokenSource tokenSource = new CancellationTokenSource();
@@ -57,7 +57,7 @@ namespace FileChronicles.Tests
         public async Task EventShouldFailEarly()
         {
 
-            var fileName2 = GetFileFullPath();
+            var fileName2 = GetNewFileFullPath();
             var fileName2Duplicate = fileName2;
             using SafeFile safeFile2 = SafeFile.Clear(fileName2),
                            safeFile2Duplicate = SafeFile.Create(fileName2Duplicate);//create the second file to cause error
@@ -74,8 +74,8 @@ namespace FileChronicles.Tests
         public async Task RollbackChangesOnError()
         {
 
-            var fileName1 = GetFileFullPath();
-            var fileName2 = GetFileFullPath();
+            var fileName1 = GetNewFileFullPath();
+            var fileName2 = GetNewFileFullPath();
             var fileName2Duplicate = fileName2;
             using SafeFile safeFile1 = SafeFile.Clear(fileName1),
                            safeFile2 = SafeFile.Clear(fileName2);
@@ -99,7 +99,7 @@ namespace FileChronicles.Tests
         [Fact]
         public async Task RollbackRemovesUncommittedChanges()
         {
-            var fileName1 = GetFileFullPath();
+            var fileName1 = GetNewFileFullPath();
             using SafeFile safeFile1 = SafeFile.Clear(fileName1);
             CancellationTokenSource tokenSource = new CancellationTokenSource();
             CancellationToken token = tokenSource.Token;
