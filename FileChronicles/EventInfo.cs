@@ -41,7 +41,11 @@
             /// <summary>
             /// A file was deleted
             /// </summary>
-            Delete
+            Delete,
+            /// <summary>
+            /// A file was moved
+            /// </summary>
+            Move
         }
     }
 }

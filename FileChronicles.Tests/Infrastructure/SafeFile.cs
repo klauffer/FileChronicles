@@ -1,17 +1,16 @@
 ﻿using System;
 using System.IO;
-using System.Threading.Tasks;
 
 namespace FileChronicles.Tests.Infrastructure
 {
     internal class SafeFile : IDisposable
     {
-        private readonly string _fileName;
+        public string FileName { get; }
         private readonly byte[] _fileContents;
 
         private SafeFile(string fileName, byte[] fileContents)
         {
-            _fileName = fileName;
+            FileName = fileName;
             _fileContents = fileContents;
         }
 
@@ -46,12 +45,12 @@ namespace FileChronicles.Tests.Infrastructure
 
         private void CreateFile()
         {
-            File.WriteAllBytes(_fileName, _fileContents);
+            File.WriteAllBytes(FileName, _fileContents);
         }
 
         public void Dispose()
         {
-            File.Delete(_fileName);
+            File.Delete(FileName);
         }
     }
 }

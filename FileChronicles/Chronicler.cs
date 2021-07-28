@@ -72,6 +72,11 @@ namespace FileChronicles
             return await _chronicle.AddEvent(new DeleteFileEvent(fileName, _inMemoryFileSystem, cancellationToken));
         }
 
+        public async Task<EventResult<EventInfo, ErrorCode>> Move(string sourceFIleName, string destinationFileName, CancellationToken cancellationToken = default)
+        {
+            return await _chronicle.AddEvent(new MoveFileEvent(sourceFIleName, destinationFileName, _inMemoryFileSystem, cancellationToken));
+        }
+
         /// <summary>
         /// Properly disposes of asynchronous resources
         /// </summary>
