@@ -10,7 +10,6 @@ namespace FileChronicles.Tests.ChronicleEventTests
         [Fact]
         public async Task MoveFileToRequestedLocation()
         {
-            //var sourceFile
             using var sourceFile = SafeFile.Create(GetNewFileFullPath());
             using var destinationFile = SafeFile.Clear(GetNewFileFullPath());
             await using var chronicler = Chronicler.Begin();
@@ -24,7 +23,6 @@ namespace FileChronicles.Tests.ChronicleEventTests
         [Fact]
         public async Task FailToMoveFileToExistingFileLocation()
         {
-            //var sourceFile
             using var sourceFile = SafeFile.Create(GetNewFileFullPath());
             using var destinationFile = SafeFile.Create(GetNewFileFullPath());
             await using var chronicler = Chronicler.Begin();
@@ -36,7 +34,6 @@ namespace FileChronicles.Tests.ChronicleEventTests
         [Fact]
         public async Task FailToMoveFileToExistingFileLocationOnCommit()
         {
-            //var sourceFile
             using var sourceFile = SafeFile.Create(GetNewFileFullPath());
             var destinationFileName = GetNewFileFullPath();
             await using var chronicler = Chronicler.Begin();
@@ -53,7 +50,6 @@ namespace FileChronicles.Tests.ChronicleEventTests
         [Fact]
         public async Task MoveTheSameFileTwice()
         {
-            //var sourceFile
             using var sourceFile = SafeFile.Create(GetNewFileFullPath());
             using var destinationFile1 = SafeFile.Clear(GetNewFileFullPath());
             using var destinationFile2 = SafeFile.Clear(GetNewFileFullPath());
@@ -69,7 +65,6 @@ namespace FileChronicles.Tests.ChronicleEventTests
         [Fact]
         public async Task FailToMoveTheSameFileTwiceFromSameLocation()
         {
-            //var sourceFile
             using var sourceFile = SafeFile.Create(GetNewFileFullPath());
             using var destinationFile1 = SafeFile.Clear(GetNewFileFullPath(1));
             using var destinationFile2 = SafeFile.Clear(GetNewFileFullPath(2));
@@ -82,6 +77,17 @@ namespace FileChronicles.Tests.ChronicleEventTests
             Assert.Equal(ErrorCode.FileDoesNotExist.ToString(), errorCodeString);
         }
 
-        //move file that doesnt exist
+        [Fact]
+        public async Task FailToMoveThatDoesNotExist()
+        {
+            using var sourceFile = SafeFile.Clear(GetNewFileFullPath());
+            using var destinationFile = SafeFile.Clear(GetNewFileFullPath());
+
+            await using var chronicler = Chronicler.Begin();
+            var stagingResponse = await chronicler.Move(sourceFile.FileName, destinationFile.FileName);
+
+            var errorCodeString = stagingResponse.Match(() => "Doh!", errorCode => errorCode.ToString());
+            Assert.Equal(ErrorCode.FileDoesNotExist.ToString(), errorCodeString);
+        }
     }
 }

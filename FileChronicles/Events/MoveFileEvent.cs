@@ -49,7 +49,8 @@ namespace FileChronicles.Events
                 eventResult = new EventResult<EventInfo, ErrorCode>.Error(ErrorCode.FileAlreadyExists);
                 return eventResult;
             }
-            if (_fileManager.HasAlreadyBeenMoved(_fileNameSource))
+            // if the file has already been moved OR the file doesnt exist in the disk or memory file system
+            if (_fileManager.HasAlreadyBeenMoved(_fileNameSource) || (!_fileManager.Exists(_fileNameSource) && !File.Exists(_fileNameSource)))
             {
                 eventResult = new EventResult<EventInfo, ErrorCode>.Error(ErrorCode.FileDoesNotExist);
                 return eventResult;
