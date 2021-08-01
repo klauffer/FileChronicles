@@ -48,7 +48,6 @@ namespace FileChronicles.Tests.ChronicleEventTests
             CancellationTokenSource tokenSource = new CancellationTokenSource();
             CancellationToken token = tokenSource.Token;
             await chronicler.Delete(path, token);
-            await chronicler.Commit();
 
             await chronicler.Rollback();
 
@@ -64,7 +63,6 @@ namespace FileChronicles.Tests.ChronicleEventTests
             CancellationTokenSource tokenSource = new CancellationTokenSource();
             CancellationToken token = tokenSource.Token;
             await chronicler.Delete(path, token);
-            await chronicler.Commit();
 
             await chronicler.Rollback();
 

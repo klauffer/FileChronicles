@@ -50,7 +50,10 @@ namespace FileChronicles.Tests.Infrastructure
 
         public void Dispose()
         {
-            File.Delete(FileName);
+            if (File.Exists(FileName))
+            {
+                File.Delete(FileName);
+            }
         }
     }
 }

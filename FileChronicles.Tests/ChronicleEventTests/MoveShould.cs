@@ -49,5 +49,39 @@ namespace FileChronicles.Tests.ChronicleEventTests
             var errorCodeString = response.Match(() => "Doh!", errorCode => errorCode.ToString());
             Assert.Equal(ErrorCode.FileAlreadyExists.ToString() ,errorCodeString);
         }
+
+        [Fact]
+        public async Task MoveTheSameFileTwice()
+        {
+            //var sourceFile
+            using var sourceFile = SafeFile.Create(GetNewFileFullPath());
+            using var destinationFile1 = SafeFile.Clear(GetNewFileFullPath());
+            using var destinationFile2 = SafeFile.Clear(GetNewFileFullPath());
+
+            await using var chronicler = Chronicler.Begin();
+            var stagingResponse1 = await chronicler.Move(sourceFile.FileName, destinationFile1.FileName);
+            var stagingResponse2 = await chronicler.Move(destinationFile1.FileName, destinationFile2.FileName);
+            var response = await chronicler.Commit();
+            var doesFileExist = response.Match(() => File.Exists(destinationFile2.FileName), errorCode => false);
+            Assert.True(doesFileExist);
+        }
+
+        [Fact]
+        public async Task FailToMoveTheSameFileTwiceFromSameLocation()
+        {
+            //var sourceFile
+            using var sourceFile = SafeFile.Create(GetNewFileFullPath());
+            using var destinationFile1 = SafeFile.Clear(GetNewFileFullPath(1));
+            using var destinationFile2 = SafeFile.Clear(GetNewFileFullPath(2));
+
+            await using var chronicler = Chronicler.Begin();
+            var stagingResponse1 = await chronicler.Move(sourceFile.FileName, destinationFile1.FileName);
+            var stagingResponse2 = await chronicler.Move(sourceFile.FileName, destinationFile2.FileName);
+
+            var errorCodeString = stagingResponse2.Match(() => "Doh!", errorCode => errorCode.ToString());
+            Assert.Equal(ErrorCode.FileDoesNotExist.ToString(), errorCodeString);
+        }
+
+        //move file that doesnt exist
     }
 }

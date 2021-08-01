@@ -44,18 +44,36 @@ namespace FileChronicles.Events
         public async Task<EventResult<EventInfo, ErrorCode>> Stage()
         {
             EventResult<EventInfo, ErrorCode> eventResult = new EventResult<EventInfo, ErrorCode>.Error(ErrorCode.None);
+            if (_fileManager.Exists(_fileNameDestination) || File.Exists(_fileNameDestination))
+            {
+                eventResult = new EventResult<EventInfo, ErrorCode>.Error(ErrorCode.FileAlreadyExists);
+                return eventResult;
+            }
+            if (_fileManager.HasAlreadyBeenMoved(_fileNameSource))
+            {
+                eventResult = new EventResult<EventInfo, ErrorCode>.Error(ErrorCode.FileDoesNotExist);
+                return eventResult;
+            }
+
+            if (!_fileManager.Exists(_fileNameSource))
+            {
+                var fileContents = await File.ReadAllBytesAsync(_fileNameSource, _cancellationToken);
+                _fileManager.Create(_fileNameSource, fileContents);
+            }
             var fileManagerResult = await _fileManager.Move(_fileNameSource, _fileNameDestination, _cancellationToken);
-            fileManagerResult.Match(
-            inMemoryFile => {
-                var eventInfo = new EventInfo(_fileNameDestination, EventInfo.EventTypes.Move);
-                eventResult = new EventResult<EventInfo, ErrorCode>.Success(eventInfo);
-                return true;
-            }, 
-            errorCode => { 
-                eventResult = new EventResult<EventInfo, ErrorCode>.Error(errorCode);
-                return false;
-            });
-            return eventResult;
+                fileManagerResult.Match(
+                inMemoryFile => {
+                    var eventInfo = new EventInfo(_fileNameDestination, EventInfo.EventTypes.Move);
+                    eventResult = new EventResult<EventInfo, ErrorCode>.Success(eventInfo);
+                    return true;
+                },
+                errorCode => {
+                    eventResult = new EventResult<EventInfo, ErrorCode>.Error(errorCode);
+                    return false;
+                });
+                return eventResult;
+            
+            
         }
     }
 }

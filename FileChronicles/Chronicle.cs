@@ -52,8 +52,9 @@ namespace FileChronicles
                 }
                 
             }
-            //maybe clear living events here?
-            return new EventResult<int, ErrorCode>.Success(_deadChronicleEvents.Count);//TODO: This doesnt feel good. maybe this shouldnt be returning a string
+            var eventsActedOn = _deadChronicleEvents.Count;
+            ClearChronicleEvents();
+            return new EventResult<int, ErrorCode>.Success(eventsActedOn);//TODO: This doesnt feel good. maybe this shouldnt be returning a integer
         }
 
         public async Task<EventResult<int, ErrorCode>> Rollback()
@@ -66,6 +67,12 @@ namespace FileChronicles
             _livingChronicleEvents = new List<IChronicleEvent>();
             _deadChronicleEvents = new List<IChronicleEvent>();
             return new EventResult<int, ErrorCode>.Success(count);
+        }
+
+        private void ClearChronicleEvents()
+        {
+            _livingChronicleEvents = new List<IChronicleEvent>();
+            _deadChronicleEvents = new List<IChronicleEvent>();
         }
     }
 }
