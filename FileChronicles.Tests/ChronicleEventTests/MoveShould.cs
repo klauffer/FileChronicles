@@ -89,5 +89,20 @@ namespace FileChronicles.Tests.ChronicleEventTests
             var errorCodeString = stagingResponse.Match(() => "Doh!", errorCode => errorCode.ToString());
             Assert.Equal(ErrorCode.FileDoesNotExist.ToString(), errorCodeString);
         }
+
+        [Fact]
+        public async Task FailToMoveTwoFilesToTheSameLocation()
+        {
+            using var sourceFile1 = SafeFile.Create(GetNewFileFullPath(1));
+            using var sourceFile2 = SafeFile.Create(GetNewFileFullPath(2));
+            using var destinationFile = SafeFile.Clear(GetNewFileFullPath());
+
+            await using var chronicler = Chronicler.Begin();
+            var stagingResponse1 = await chronicler.Move(sourceFile1.FileName, destinationFile.FileName);
+            var stagingResponse2 = await chronicler.Move(sourceFile2.FileName, destinationFile.FileName);
+
+            var errorCodeString = stagingResponse2.Match(() => "Doh!", errorCode => errorCode.ToString());
+            Assert.Equal(ErrorCode.FileAlreadyExists.ToString(), errorCodeString);
+        }
     }
 }
