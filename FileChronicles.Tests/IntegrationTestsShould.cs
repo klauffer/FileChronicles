@@ -74,5 +74,28 @@ namespace FileChronicles.Tests
 
             Assert.False(doesFile2Exist);
         }
+
+        [Fact]
+        public async Task CreateMoveThenDeleteFile()
+        {
+            using var sourceFile = SafeFile.Clear(GetNewFileFullPath());
+            using var destinationFile = SafeFile.Clear(GetNewFileFullPath());
+
+            await using var chronicler = Chronicler.Begin();
+            var createResult = await chronicler.Create(sourceFile.FileName, _fileContentsBytes, default);
+            var moveResult = await chronicler.Move(sourceFile.FileName, destinationFile.FileName, default);
+            var deleteResult = await chronicler.Delete(destinationFile.FileName, default);
+            var commitResult = await chronicler.Commit();
+
+            var isCreated = createResult.Match(() => true, errorCode => false);
+            var isMoved = moveResult.Match(() => true, errorCode => false);
+            var isDeleted = deleteResult.Match(() => true, errorCode => false);
+            var isCommitted = commitResult.Match(() => true, errorCode => false);
+
+            Assert.True(isCreated);
+            Assert.True(isMoved);
+            Assert.True(isDeleted);
+            Assert.True(isCommitted);
+        }
     }
 }
