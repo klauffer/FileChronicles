@@ -17,6 +17,6 @@ Or via the .NET Core command line interface:
 
     dotnet add package FileChronicles
 
-Either commands, from Package Manager Console or .NET Core CLI, will download and install MediatR and all required dependencies.
+Either commands, from Package Manager Console or .NET Core CLI, will download and install FileChronicles and all required dependencies.
 
 Examples in the [wiki](https://github.com/klauffer/FileChronicles/wiki).
