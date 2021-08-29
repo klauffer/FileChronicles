@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using FunkyBasics.Either;
 
 namespace FileChronicles.InMemoryFileSystem
 {
@@ -33,14 +34,14 @@ namespace FileChronicles.InMemoryFileSystem
             _history.Any(x => x.InMemoryFile.FileName == fileName
                               && x.Action == HistoryRecord.Actions.moved);
 
-        public Task<EventResult<InMemoryFile, ErrorCode>> Move(string sourceFileName, string destinationFileName, CancellationToken cancellationToken = default)
+        public Task<EitherResult<InMemoryFile, ErrorCode>> Move(string sourceFileName, string destinationFileName, CancellationToken cancellationToken = default)
         {
-            EventResult<InMemoryFile, ErrorCode> eventResult = new EventResult<InMemoryFile, ErrorCode>.Error(ErrorCode.FileDoesNotExist);
+            EitherResult<InMemoryFile, ErrorCode> EitherResult = new EitherResult<InMemoryFile, ErrorCode>.Right(ErrorCode.FileDoesNotExist);
 
             if (Exists(destinationFileName))
             {
-                eventResult = new EventResult<InMemoryFile, ErrorCode>.Error(ErrorCode.FileAlreadyExists);
-                return Task.FromResult(eventResult);
+                EitherResult = new EitherResult<InMemoryFile, ErrorCode>.Right(ErrorCode.FileAlreadyExists);
+                return Task.FromResult(EitherResult);
             }
             if (Exists(sourceFileName))
             {
@@ -50,28 +51,28 @@ namespace FileChronicles.InMemoryFileSystem
                     _inMemoryFiles.Add(destinationFileName, inMemoryFile);
                     RecordHistoryOfMove(inMemoryFile);
                     _inMemoryFiles.Remove(sourceFileName);
-                    eventResult = new EventResult<InMemoryFile, ErrorCode>.Success(inMemoryFile);
+                    EitherResult = new EitherResult<InMemoryFile, ErrorCode>.Left(inMemoryFile);
                     return true;
                 },
                 errorCode =>
                 {
-                    eventResult = new EventResult<InMemoryFile, ErrorCode>.Error(errorCode);
+                    EitherResult = new EitherResult<InMemoryFile, ErrorCode>.Right(errorCode);
                     return false;
                 });
             }
-            return Task.FromResult(eventResult);
+            return Task.FromResult(EitherResult);
         }
 
         private void RecordHistoryOfMove(InMemoryFile sourceFile) =>
             _history.Add(HistoryRecord.CreateMovedRecord(sourceFile));
 
-        private EventResult<InMemoryFile, ErrorCode> GetFile(string fileName)
+        private EitherResult<InMemoryFile, ErrorCode> GetFile(string fileName)
         {
             if (_inMemoryFiles.TryGetValue(fileName, out var inMemoryFile))
             {
-                return new EventResult<InMemoryFile, ErrorCode>.Success(inMemoryFile);
+                return new EitherResult<InMemoryFile, ErrorCode>.Left(inMemoryFile);
             }
-            return new EventResult<InMemoryFile, ErrorCode>.Error(ErrorCode.FileDoesNotExist);
+            return new EitherResult<InMemoryFile, ErrorCode>.Right(ErrorCode.FileDoesNotExist);
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using FileChronicles.InMemoryFileSystem;
+using FunkyBasics.Either;
 
 namespace FileChronicles.Events
 {
@@ -23,32 +24,32 @@ namespace FileChronicles.Events
             _fileManager = fileManager;
         }
 
-        public async Task<EventResult<EventInfo, ErrorCode>> Action()
+        public async Task<EitherResult<EventInfo, ErrorCode>> Action()
         {
             fileContents = await File.ReadAllBytesAsync(_fileName, _cancellationToken);
             File.Delete(_fileName);
             var eventInfo = new EventInfo(_fileName, EventInfo.EventTypes.Delete);
-            EventResult<EventInfo, ErrorCode> eventResult = new EventResult<EventInfo, ErrorCode>.Success(eventInfo);
-            return eventResult;
+            EitherResult<EventInfo, ErrorCode> EitherResult = new EitherResult<EventInfo, ErrorCode>.Left(eventInfo);
+            return EitherResult;
         }
 
-        public async Task<EventResult<EventInfo, ErrorCode>> RollBack()
+        public async Task<EitherResult<EventInfo, ErrorCode>> RollBack()
         {
             await File.WriteAllBytesAsync(_fileName, fileContents, _cancellationToken);
             var eventInfo = new EventInfo(_fileName, EventInfo.EventTypes.Delete);
-            EventResult<EventInfo, ErrorCode> eventResult = new EventResult<EventInfo, ErrorCode>.Success(eventInfo);
-            return eventResult;
+            EitherResult<EventInfo, ErrorCode> EitherResult = new EitherResult<EventInfo, ErrorCode>.Left(eventInfo);
+            return EitherResult;
         }
 
-        public Task<EventResult<EventInfo, ErrorCode>> Stage()
+        public Task<EitherResult<EventInfo, ErrorCode>> Stage()
         {
             if (_fileManager.Exists(_fileName) || File.Exists(_fileName))
             {
                 _fileManager.Delete(_fileName);
-                EventResult<EventInfo, ErrorCode> successResult = new EventResult<EventInfo, ErrorCode>.Success(new EventInfo(_fileName, EventInfo.EventTypes.Delete));
+                EitherResult<EventInfo, ErrorCode> successResult = new EitherResult<EventInfo, ErrorCode>.Left(new EventInfo(_fileName, EventInfo.EventTypes.Delete));
                 return Task.FromResult(successResult);
             }
-            EventResult<EventInfo, ErrorCode> errorResult = new EventResult<EventInfo, ErrorCode>.Error(ErrorCode.FileDoesNotExist);
+            EitherResult<EventInfo, ErrorCode> errorResult = new EitherResult<EventInfo, ErrorCode>.Right(ErrorCode.FileDoesNotExist);
             return Task.FromResult(errorResult);
 
 

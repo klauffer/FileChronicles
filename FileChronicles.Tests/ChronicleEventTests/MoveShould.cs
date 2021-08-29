@@ -15,7 +15,7 @@ namespace FileChronicles.Tests.ChronicleEventTests
             await using var chronicler = Chronicler.Begin();
             var stagingResponse = await chronicler.Move(sourceFile.FileName, destinationFile.FileName);
             var response = await chronicler.Commit();
-            var doesFileExist = response.Match(() => File.Exists(destinationFile.FileName), errorCode => false);
+            var doesFileExist = response.Match(x => File.Exists(destinationFile.FileName), errorCode => false);
             Assert.True(doesFileExist);
         }
 
@@ -27,7 +27,7 @@ namespace FileChronicles.Tests.ChronicleEventTests
             using var destinationFile = SafeFile.Create(GetNewFileFullPath());
             await using var chronicler = Chronicler.Begin();
             var stagingResponse = await chronicler.Move(sourceFile.FileName, destinationFile.FileName);
-            var errorCodeString = stagingResponse.Match(() => "Doh!", errorCode => errorCode.ToString());
+            var errorCodeString = stagingResponse.Match(x => "Doh!", errorCode => errorCode.ToString());
             Assert.Equal(ErrorCode.FileAlreadyExists.ToString(), errorCodeString);
         }
 
@@ -43,7 +43,7 @@ namespace FileChronicles.Tests.ChronicleEventTests
             using var destinationFile = SafeFile.Create(destinationFileName);
 
             var response = await chronicler.Commit();
-            var errorCodeString = response.Match(() => "Doh!", errorCode => errorCode.ToString());
+            var errorCodeString = response.Match(x => "Doh!", errorCode => errorCode.ToString());
             Assert.Equal(ErrorCode.FileAlreadyExists.ToString() ,errorCodeString);
         }
 
@@ -58,7 +58,7 @@ namespace FileChronicles.Tests.ChronicleEventTests
             var stagingResponse1 = await chronicler.Move(sourceFile.FileName, destinationFile1.FileName);
             var stagingResponse2 = await chronicler.Move(destinationFile1.FileName, destinationFile2.FileName);
             var response = await chronicler.Commit();
-            var doesFileExist = response.Match(() => File.Exists(destinationFile2.FileName), errorCode => false);
+            var doesFileExist = response.Match(x => File.Exists(destinationFile2.FileName), errorCode => false);
             Assert.True(doesFileExist);
         }
 
@@ -73,7 +73,7 @@ namespace FileChronicles.Tests.ChronicleEventTests
             var stagingResponse1 = await chronicler.Move(sourceFile.FileName, destinationFile1.FileName);
             var stagingResponse2 = await chronicler.Move(sourceFile.FileName, destinationFile2.FileName);
 
-            var errorCodeString = stagingResponse2.Match(() => "Doh!", errorCode => errorCode.ToString());
+            var errorCodeString = stagingResponse2.Match(x => "Doh!", errorCode => errorCode.ToString());
             Assert.Equal(ErrorCode.FileDoesNotExist.ToString(), errorCodeString);
         }
 
@@ -86,7 +86,7 @@ namespace FileChronicles.Tests.ChronicleEventTests
             await using var chronicler = Chronicler.Begin();
             var stagingResponse = await chronicler.Move(sourceFile.FileName, destinationFile.FileName);
 
-            var errorCodeString = stagingResponse.Match(() => "Doh!", errorCode => errorCode.ToString());
+            var errorCodeString = stagingResponse.Match(x => "Doh!", errorCode => errorCode.ToString());
             Assert.Equal(ErrorCode.FileDoesNotExist.ToString(), errorCodeString);
         }
 
@@ -101,7 +101,7 @@ namespace FileChronicles.Tests.ChronicleEventTests
             var stagingResponse1 = await chronicler.Move(sourceFile1.FileName, destinationFile.FileName);
             var stagingResponse2 = await chronicler.Move(sourceFile2.FileName, destinationFile.FileName);
 
-            var errorCodeString = stagingResponse2.Match(() => "Doh!", errorCode => errorCode.ToString());
+            var errorCodeString = stagingResponse2.Match(x => "Doh!", errorCode => errorCode.ToString());
             Assert.Equal(ErrorCode.FileAlreadyExists.ToString(), errorCodeString);
         }
     }

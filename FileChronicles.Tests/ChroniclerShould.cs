@@ -21,9 +21,9 @@ namespace FileChronicles.Tests
             CancellationToken token = tokenSource.Token;
             await chronicler.Create(fileName1, _emptyFileContents, token);
             await chronicler.Create(fileName2, _emptyFileContents, token);
-            var eventResult = await chronicler.Commit();
+            var EitherResult = await chronicler.Commit();
 
-            Assert.True(eventResult.Match(() => true, errorCode => false));
+            Assert.True(EitherResult.Match(x => true, errorCode => false));
             Assert.True(File.Exists(fileName1));
             Assert.True(File.Exists(fileName2));
         }
@@ -47,9 +47,9 @@ namespace FileChronicles.Tests
             //create the first file to cause error
             using SafeFile safeFile1Duplicate = SafeFile.Create(fileName1Duplicate);
 
-            var eventResult = await chronicler.Commit();
+            var EitherResult = await chronicler.Commit();
 
-            Assert.Equal(ErrorCode.FileAlreadyExists.ToString() ,eventResult.Match(() => "", errorCode => errorCode.ToString()));
+            Assert.Equal(ErrorCode.FileAlreadyExists.ToString() ,EitherResult.Match(x => "", errorCode => errorCode.ToString()));
             Assert.False(File.Exists(fileName2));//The second file, although valid, was never made
         }
 
@@ -66,7 +66,7 @@ namespace FileChronicles.Tests
 
             await using var chronicler = Chronicler.Begin();
             var event2 = await chronicler.Create(fileName2, _emptyFileContents, token);
-            var errorMessage = event2.Match(() => "Doh!", errorCode => errorCode.ToString());
+            var errorMessage = event2.Match(x => "Doh!", errorCode => errorCode.ToString());
             Assert.Equal(ErrorCode.FileAlreadyExists.ToString(), errorMessage);
         }
 
@@ -90,7 +90,7 @@ namespace FileChronicles.Tests
             //create the second file to cause error after the initial create
             using SafeFile safeFile2Duplicate = SafeFile.Create(fileName2Duplicate);
 
-            var eventResult = await chronicler.Commit();
+            var EitherResult = await chronicler.Commit();
             //The first file should've been created then the second file failed and rolled back the first action.
             //so this file should no longer exist
             Assert.False(File.Exists(fileName1));

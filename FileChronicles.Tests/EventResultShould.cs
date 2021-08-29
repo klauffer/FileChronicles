@@ -1,21 +1,23 @@
-﻿using Xunit;
+﻿using FunkyBasics.Either;
+using Xunit;
 
 namespace FileChronicles.Tests
 {
-    public class EventResultShould
+    public class EitherResultShould
     {
         [Fact]
         public void HandleSuccess()
         {
-            var successEvent = new EventResult<string, string>.Success("YAY");
+            var successEvent = new EitherResult<string, string>.Right("YAY");
             var answer = successEvent.Match(x => x, errorInfo => errorInfo);
             Assert.Equal("YAY", answer);
         }
 
+
         [Fact] 
         public void HandleFailure()
         {
-            var successEvent = new EventResult<string, ErrorCode>.Error(ErrorCode.FileAlreadyExists);
+            var successEvent = new EitherResult<string, ErrorCode>.Right(ErrorCode.FileAlreadyExists);
             var answer = successEvent.Match(x => x, errorCode => errorCode.ToString());
             Assert.Equal(ErrorCode.FileAlreadyExists.ToString(), answer);
         }

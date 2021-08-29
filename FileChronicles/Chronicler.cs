@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FileChronicles.Events;
 using FileChronicles.InMemoryFileSystem;
+using FunkyBasics.Either;
 
 namespace FileChronicles
 {
@@ -33,7 +34,7 @@ namespace FileChronicles
         /// Commits all recorded events in the chronicle tracked by this Chronicler
         /// </summary>
         /// <returns></returns>
-        public async Task<EventResult<int, ErrorCode>> Commit()
+        public async Task<EitherResult<int, ErrorCode>> Commit()
         {
             return await _chronicle.Commit();
         }
@@ -54,7 +55,7 @@ namespace FileChronicles
         /// <param name="bytes">the contents of the file</param>
         /// <param name="cancellationToken">to cancel writing the file</param>
         /// <returns></returns>
-        public async Task<EventResult<EventInfo, ErrorCode>> Create(string fileName, byte[] bytes, CancellationToken cancellationToken = default)
+        public async Task<EitherResult<EventInfo, ErrorCode>> Create(string fileName, byte[] bytes, CancellationToken cancellationToken = default)
         {
             var createFileEvent = new CreateFileEvent(fileName, bytes, _inMemoryFileSystem, cancellationToken);
             return await _chronicle.AddEvent(createFileEvent);
@@ -67,14 +68,21 @@ namespace FileChronicles
         /// <param name="fileName">the file to be deleted</param>
         /// <param name="cancellationToken">to cancel deleting the file</param>
         /// <returns></returns>
-        public async Task<EventResult<EventInfo, ErrorCode>> Delete(string fileName, CancellationToken cancellationToken = default)
+        public async Task<EitherResult<EventInfo, ErrorCode>> Delete(string fileName, CancellationToken cancellationToken = default)
         {
             return await _chronicle.AddEvent(new DeleteFileEvent(fileName, _inMemoryFileSystem, cancellationToken));
         }
 
-        public async Task<EventResult<EventInfo, ErrorCode>> Move(string sourceFIleName, string destinationFileName, CancellationToken cancellationToken = default)
+        /// <summary>
+        /// Moves a file from one location to another
+        /// </summary>
+        /// <param name="sourceFileName">full file path to the file that is to be moved</param>
+        /// <param name="destinationFileName">the location of the desitnation file</param>
+        /// <param name="cancellationToken">cancel the move</param>
+        /// <returns></returns>
+        public async Task<EitherResult<EventInfo, ErrorCode>> Move(string sourceFileName, string destinationFileName, CancellationToken cancellationToken = default)
         {
-            return await _chronicle.AddEvent(new MoveFileEvent(sourceFIleName, destinationFileName, _inMemoryFileSystem, cancellationToken));
+            return await _chronicle.AddEvent(new MoveFileEvent(sourceFileName, destinationFileName, _inMemoryFileSystem, cancellationToken));
         }
 
         /// <summary>

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using FileChronicles.Events;
+using FunkyBasics.Either;
 
 namespace FileChronicles
 {
@@ -15,22 +16,25 @@ namespace FileChronicles
             _deadChronicleEvents = new List<IChronicleEvent>();
         }
 
-        public async Task<EventResult<EventInfo, ErrorCode>> AddEvent(IChronicleEvent chronicleEvent)
+        public async Task<EitherResult<EventInfo, ErrorCode>> AddEvent(IChronicleEvent chronicleEvent)
         {
-            var eventResult = await chronicleEvent.Stage();
-            eventResult.IfSuccess(() => _livingChronicleEvents.Add(chronicleEvent));
-            return eventResult;
+            var EitherResult = await chronicleEvent.Stage();
+            if(EitherResult.IsLeft().Match(() => true, () => false))
+            {
+                _livingChronicleEvents.Add(chronicleEvent); 
+            }
+            return EitherResult;
         }
 
-        public async Task<EventResult<int, ErrorCode>> Commit()
+        public async Task<EitherResult<int, ErrorCode>> Commit()
         {
             ErrorCode shortCircuitErrorCode = ErrorCode.None;
             foreach (var chroncileEvent in _livingChronicleEvents)
             {
                 try
                 {
-                    var eventResult = await chroncileEvent.Action();
-                    var successfulAction = await eventResult.Match(() =>
+                    var EitherResult = await chroncileEvent.Action();
+                    var successfulAction = await EitherResult.Match(eventInfo =>
                                             {
                                                 _deadChronicleEvents.Add(chroncileEvent);
                                                 return Task.FromResult(true);
@@ -43,21 +47,21 @@ namespace FileChronicles
                                             });
                     if (!successfulAction)
                     {
-                        return new EventResult<int, ErrorCode>.Error(shortCircuitErrorCode);
+                        return new EitherResult<int, ErrorCode>.Right(shortCircuitErrorCode);
                     }
                 }
                 catch (TaskCanceledException)
                 {
-                    return new EventResult<int, ErrorCode>.Error(ErrorCode.EventCancelled);
+                    return new EitherResult<int, ErrorCode>.Right(ErrorCode.EventCancelled);
                 }
                 
             }
             var eventsActedOn = _deadChronicleEvents.Count;
             ClearChronicleEvents();
-            return new EventResult<int, ErrorCode>.Success(eventsActedOn);//TODO: This doesnt feel good. maybe this shouldnt be returning a integer
+            return new EitherResult<int, ErrorCode>.Left(eventsActedOn);//TODO: This doesnt feel good. maybe this shouldnt be returning a integer
         }
 
-        public async Task<EventResult<int, ErrorCode>> Rollback()
+        public async Task<EitherResult<int, ErrorCode>> Rollback()
         {
             foreach (var chronicleEvent in _deadChronicleEvents)
             {
@@ -66,7 +70,7 @@ namespace FileChronicles
             var count = _deadChronicleEvents.Count;
             _livingChronicleEvents = new List<IChronicleEvent>();
             _deadChronicleEvents = new List<IChronicleEvent>();
-            return new EventResult<int, ErrorCode>.Success(count);
+            return new EitherResult<int, ErrorCode>.Left(count);
         }
 
         private void ClearChronicleEvents()

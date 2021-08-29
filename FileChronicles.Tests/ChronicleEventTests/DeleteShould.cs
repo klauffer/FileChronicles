@@ -18,8 +18,8 @@ namespace FileChronicles.Tests.ChronicleEventTests
             var chronicler = Chronicler.Begin();
             CancellationTokenSource tokenSource = new CancellationTokenSource();
             CancellationToken token = tokenSource.Token;
-            var eventResult = await chronicler.Delete(path, token);
-            var filePath = eventResult.Match(eventInfo => eventInfo.FileName, errorCode => errorCode.ToString());
+            var EitherResult = await chronicler.Delete(path, token);
+            var filePath = EitherResult.Match(eventInfo => eventInfo.FileName, errorCode => errorCode.ToString());
 
             Assert.Equal(path, filePath);
         }
@@ -33,8 +33,8 @@ namespace FileChronicles.Tests.ChronicleEventTests
             CancellationTokenSource tokenSource = new CancellationTokenSource();
             CancellationToken token = tokenSource.Token;
             await chronicler.Delete(path, token);
-            var eventResult = await chronicler.Commit();
-            var doesFileExist = eventResult.Match(count => File.Exists(path) , errorCode => true);
+            var EitherResult = await chronicler.Commit();
+            var doesFileExist = EitherResult.Match(count => File.Exists(path) , errorCode => true);
 
             Assert.False(doesFileExist);
         }

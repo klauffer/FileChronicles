@@ -87,10 +87,10 @@ namespace FileChronicles.Tests
             var deleteResult = await chronicler.Delete(destinationFile.FileName, default);
             var commitResult = await chronicler.Commit();
 
-            var isCreated = createResult.Match(() => true, errorCode => false);
-            var isMoved = moveResult.Match(() => true, errorCode => false);
-            var isDeleted = deleteResult.Match(() => true, errorCode => false);
-            var isCommitted = commitResult.Match(() => true, errorCode => false);
+            var isCreated = createResult.Match(x => true, errorCode => false);
+            var isMoved = moveResult.Match(x => true, errorCode => false);
+            var isDeleted = deleteResult.Match(x => true, errorCode => false);
+            var isCommitted = commitResult.Match(x => true, errorCode => false);
 
             Assert.True(isCreated);
             Assert.True(isMoved);

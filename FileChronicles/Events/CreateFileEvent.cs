@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using FileChronicles.InMemoryFileSystem;
+using FunkyBasics.Either;
 
 namespace FileChronicles.Events
 {
@@ -20,12 +21,12 @@ namespace FileChronicles.Events
             _cancellationToken = cancellationToken;
         }
 
-        public Task<EventResult<EventInfo, ErrorCode>> Stage()
+        public Task<EitherResult<EventInfo, ErrorCode>> Stage()
         {
-            EventResult<EventInfo, ErrorCode> result = new EventResult<EventInfo, ErrorCode>.Success(new EventInfo(_fileName, EventInfo.EventTypes.Create));
+            EitherResult<EventInfo, ErrorCode> result = new EitherResult<EventInfo, ErrorCode>.Left(new EventInfo(_fileName, EventInfo.EventTypes.Create));
             if (_fileManager.Exists(_fileName) || File.Exists(_fileName))
             {
-                result = new EventResult<EventInfo, ErrorCode>.Error(ErrorCode.FileAlreadyExists);
+                result = new EitherResult<EventInfo, ErrorCode>.Right(ErrorCode.FileAlreadyExists);
             }
             else
             {
@@ -34,21 +35,21 @@ namespace FileChronicles.Events
             return Task.FromResult(result);
         }
 
-        public async Task<EventResult<EventInfo, ErrorCode>> Action()
+        public async Task<EitherResult<EventInfo, ErrorCode>> Action()
         {
             if (!File.Exists(_fileName))
             {
                 await File.WriteAllBytesAsync(_fileName, _bytes, _cancellationToken);
-                return new EventResult<EventInfo, ErrorCode>.Success(new EventInfo(_fileName, EventInfo.EventTypes.Create));
+                return new EitherResult<EventInfo, ErrorCode>.Left(new EventInfo(_fileName, EventInfo.EventTypes.Create));
             }
-            return new EventResult<EventInfo, ErrorCode>.Error(ErrorCode.FileAlreadyExists);
+            return new EitherResult<EventInfo, ErrorCode>.Right(ErrorCode.FileAlreadyExists);
         }
 
-        public Task<EventResult<EventInfo, ErrorCode>> RollBack()
+        public Task<EitherResult<EventInfo, ErrorCode>> RollBack()
         {
             File.Delete(_fileName);
-            EventResult<EventInfo, ErrorCode> eventResult = new EventResult<EventInfo, ErrorCode>.Success(new EventInfo(_fileName, EventInfo.EventTypes.Create));
-            return Task.FromResult(eventResult);
+            EitherResult<EventInfo, ErrorCode> EitherResult = new EitherResult<EventInfo, ErrorCode>.Left(new EventInfo(_fileName, EventInfo.EventTypes.Create));
+            return Task.FromResult(EitherResult);
         }
     }
 }
